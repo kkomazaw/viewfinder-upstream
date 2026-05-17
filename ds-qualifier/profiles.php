@@ -4,12 +4,20 @@
  *
  * Defines industry/context-specific weighting profiles for domain scoring
  * Weights: 1.0 = standard, 1.5 = higher priority, 2.0 = critical
+ *
+ * Note: This file now uses translation keys for names and descriptions.
+ * Load i18n before requiring this file to translate profile metadata.
  */
+
+// Load i18n if not already loaded
+if (!function_exists('__')) {
+    require_once __DIR__ . '/../i18n/I18n.php';
+}
 
 return [
     'balanced' => [
-        'name' => 'Balanced',
-        'description' => 'Equal weighting across all domains - suitable for general assessments and organizations without specific regulatory constraints.',
+        'name_key' => 'profile.balanced.name',
+        'description_key' => 'profile.balanced.description',
         'icon' => 'fa-balance-scale',
         'weights' => [
             'Data Sovereignty' => 1.0,
@@ -23,8 +31,8 @@ return [
     ],
 
     'financial' => [
-        'name' => 'Financial Services',
-        'description' => 'Emphasizes data protection, audit controls, and compliance for banking and finance (PCI DSS, data residency, anti-money laundering).',
+        'name_key' => 'profile.financial.name',
+        'description_key' => 'profile.financial.description',
         'icon' => 'fa-building-columns',
         'weights' => [
             'Data Sovereignty' => 2.0,      // Critical: PCI DSS, data residency
@@ -38,8 +46,8 @@ return [
     ],
 
     'healthcare' => [
-        'name' => 'Healthcare',
-        'description' => 'Focuses on patient data protection (HIPAA, GDPR) and operational resilience for life-critical systems requiring 24/7 availability.',
+        'name_key' => 'profile.healthcare.name',
+        'description_key' => 'profile.healthcare.description',
         'icon' => 'fa-heart-pulse',
         'weights' => [
             'Data Sovereignty' => 2.0,        // Critical: HIPAA, patient data
@@ -53,8 +61,8 @@ return [
     ],
 
     'government' => [
-        'name' => 'Government & Public Sector',
-        'description' => 'Comprehensive sovereignty for public sector organizations handling sensitive citizen data and critical national infrastructure (NIS2, FedRAMP).',
+        'name_key' => 'profile.government.name',
+        'description_key' => 'profile.government.description',
         'icon' => 'fa-landmark',
         'weights' => [
             'Data Sovereignty' => 2.0,        // Critical: Citizen data
@@ -68,8 +76,8 @@ return [
     ],
 
     'technology' => [
-        'name' => 'Technology & SaaS',
-        'description' => 'Prioritizes technical independence, open source strategy, and multi-cloud portability to avoid vendor lock-in and maintain competitive agility.',
+        'name_key' => 'profile.technology.name',
+        'description_key' => 'profile.technology.description',
         'icon' => 'fa-laptop-code',
         'weights' => [
             'Data Sovereignty' => 1.5,
@@ -83,8 +91,8 @@ return [
     ],
 
     'manufacturing' => [
-        'name' => 'Manufacturing & Industrial',
-        'description' => 'Emphasizes operational resilience, production uptime, and OT/IT integration for continuous operations and IP protection in industrial control systems.',
+        'name_key' => 'profile.manufacturing.name',
+        'description_key' => 'profile.manufacturing.description',
         'icon' => 'fa-industry',
         'weights' => [
             'Data Sovereignty' => 1.5,        // Important: IP protection
@@ -98,8 +106,8 @@ return [
     ],
 
     'telecommunications' => [
-        'name' => 'Telecommunications',
-        'description' => 'Focuses on critical infrastructure protection, subscriber data sovereignty, and 24/7 service availability (NIS2, network security).',
+        'name_key' => 'profile.telecommunications.name',
+        'description_key' => 'profile.telecommunications.description',
         'icon' => 'fa-tower-cell',
         'weights' => [
             'Data Sovereignty' => 2.0,        // Critical: Subscriber data
@@ -113,8 +121,8 @@ return [
     ],
 
     'energy' => [
-        'name' => 'Energy & Utilities',
-        'description' => 'Prioritizes critical infrastructure protection, grid reliability, and SCADA system security for essential services (NIS2, NERC CIP).',
+        'name_key' => 'profile.energy.name',
+        'description_key' => 'profile.energy.description',
         'icon' => 'fa-bolt',
         'weights' => [
             'Data Sovereignty' => 1.5,
@@ -128,8 +136,8 @@ return [
     ],
 
     'custom' => [
-        'name' => 'Custom',
-        'description' => 'Define your own domain weightings based on your specific regulatory requirements, business model, and organizational priorities.',
+        'name_key' => 'profile.custom.name',
+        'description_key' => 'profile.custom.description',
         'icon' => 'fa-sliders',
         'weights' => [
             'Data Sovereignty' => 1.0,

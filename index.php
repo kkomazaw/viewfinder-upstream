@@ -1,9 +1,30 @@
+<?php
+// Start session for locale management
+session_start();
+
+// Load internationalization
+require_once __DIR__ . '/i18n/I18n.php';
+
+// Handle locale change request
+if (isset($_GET['locale'])) {
+    setLocale($_GET['locale']);
+    // Redirect to remove locale parameter from URL
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+    exit;
+}
+
+// Load profile definitions
+$profiles = require_once __DIR__ . '/ds-qualifier/profiles.php';
+// Load questions to get domain names
+$questions = require_once __DIR__ . '/ds-qualifier/config.php';
+$domainNames = array_keys($questions);
+?>
 <!doctype html>
-<html lang="en-us" class="pf-theme-dark">
+<html lang="<?php echo getLocale(); ?>" dir="<?php echo getTextDirection(); ?>" class="pf-theme-dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Viewfinder Lite</title>
+  <title><?php echo __e('landing.title'); ?> - Viewfinder</title>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/brands.css" />
@@ -15,14 +36,6 @@
   <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
   <script src="https://kit.fontawesome.com/8a8c57f9cf.js" crossorigin="anonymous"></script>
-
-  <?php
-  // Load profile definitions
-  $profiles = require_once __DIR__ . '/ds-qualifier/profiles.php';
-  // Load questions to get domain names
-  $questions = require_once __DIR__ . '/ds-qualifier/config.php';
-  $domainNames = array_keys($questions);
-  ?>
 
   <style>
     body {
@@ -466,11 +479,33 @@
 </head>
 
 <body>
+  <!-- Language Selector -->
+  <div class="language-selector" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+    <label for="language-select" style="color: #9ec7fc; margin-right: 0.5rem;">
+      <i class="fa-solid fa-globe"></i>
+    </label>
+    <select id="language-select"
+            onchange="changeLanguage(this.value)"
+            style="background: #2a2a2a; color: #ccc; border: 1px solid #444; padding: 0.5rem; border-radius: 4px; cursor: pointer;">
+      <?php
+      $availableLocales = getAvailableLocales();
+      $currentLocale = getLocale();
+
+      foreach ($availableLocales as $locale):
+      ?>
+        <option value="<?php echo $locale; ?>"
+                <?php echo $locale === $currentLocale ? 'selected' : ''; ?>>
+          <?php echo getLocaleName($locale); ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
   <div class="landing-page-wrapper">
     <div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 2rem;">
       <div style="text-align: center; margin-bottom: 0;">
         <h1 style="color: #9ec7fc; font-size: 2rem; margin-bottom: 0; font-weight: 600;">
-          Digital Sovereignty Navigator
+          <?php echo __e('landing.title'); ?>
         </h1>
       </div>
 
@@ -479,10 +514,10 @@
         <div class="landing-card">
           <div class="landing-card-header">
             <i class="fa-solid fa-clipboard-check"></i>
-            <h2>Digital Sovereignty Readiness Assessment</h2>
+            <h2><?php echo __e('landing.assessment_title'); ?></h2>
           </div>
           <p class="landing-card-description">
-            Quick 10-15 minute assessment to evaluate your organization's digital sovereignty readiness across 7 key domains
+            <?php echo __e('landing.assessment_description'); ?>
           </p>
 
           <div class="landing-card-content">
@@ -490,36 +525,36 @@
             <div class="landing-card-left">
               <div class="profile-selector">
                 <label for="profile-select">
-                  <i class="fa-solid fa-layer-group"></i> Select Your Industry/Context:
+                  <i class="fa-solid fa-layer-group"></i> <?php echo __e('landing.select_profile'); ?>
                 </label>
                 <select id="profile-select" name="profile">
                   <?php foreach ($profiles as $profileKey => $profileData): ?>
                     <option value="<?php echo htmlspecialchars($profileKey); ?>"
-                            data-description="<?php echo htmlspecialchars($profileData['description']); ?>"
+                            data-description-key="<?php echo htmlspecialchars($profileData['description_key']); ?>"
                             data-icon="<?php echo htmlspecialchars($profileData['icon']); ?>"
                             <?php echo $profileKey === 'balanced' ? 'selected' : ''; ?>>
-                      <?php echo htmlspecialchars($profileData['name']); ?>
+                      <?php echo __e($profileData['name_key']); ?>
                     </option>
                   <?php endforeach; ?>
                 </select>
                 <div class="profile-description" id="profile-description">
                   <i class="fa-solid fa-balance-scale"></i>
                   <span id="profile-description-text">
-                    <?php echo htmlspecialchars($profiles['balanced']['description']); ?>
+                    <?php echo __e($profiles['balanced']['description_key']); ?>
                   </span>
                 </div>
               </div>
 
               <!-- Custom Weights Controls (shown only when Custom profile is selected) -->
               <div class="custom-weights-section" id="custom-weights-section">
-                <h4><i class="fa-solid fa-sliders"></i> Customize Domain Weights</h4>
+                <h4><i class="fa-solid fa-sliders"></i> <?php echo __e('landing.customize_weights'); ?></h4>
                 <p style="font-size: 0.8rem; color: #999; margin-bottom: 1rem; text-align: center;">
-                  Adjust weights from 1.0× (standard) to 2.0× (critical priority)
+                  <?php echo __e('landing.adjust_weights_hint'); ?>
                 </p>
                 <?php foreach ($domainNames as $domain): ?>
                   <div class="custom-weight-control">
                     <label for="slider-<?php echo htmlspecialchars(str_replace(' ', '-', $domain)); ?>">
-                      <?php echo htmlspecialchars($domain); ?>
+                      <?php echo __e('domain.' . strtolower(str_replace(' ', '_', $domain))); ?>
                     </label>
                     <input
                       type="range"
@@ -538,7 +573,7 @@
 
               <div class="landing-card-buttons">
                 <button id="start-assessment-btn" class="landing-button landing-button-primary">
-                  <i class="fa-solid fa-rocket"></i> Start Assessment
+                  <i class="fa-solid fa-rocket"></i> <?php echo __e('landing.start_assessment'); ?>
                 </button>
               </div>
             </div>
@@ -547,12 +582,12 @@
             <div class="landing-card-right">
               <div class="weights-display">
                 <h3>
-                  <i class="fa-solid fa-chart-bar"></i> Domain Weighting - <span id="profile-name-display">Balanced</span>
+                  <i class="fa-solid fa-chart-bar"></i> <?php echo __e('landing.domain_weighting'); ?> - <span id="profile-name-display"><?php echo __e('profile.balanced.name'); ?></span>
                 </h3>
                 <div id="weights-container">
                   <?php foreach ($domainNames as $domain): ?>
                     <div class="weight-item">
-                      <span class="weight-domain"><?php echo htmlspecialchars($domain); ?></span>
+                      <span class="weight-domain"><?php echo __e('domain.' . strtolower(str_replace(' ', '_', $domain))); ?></span>
                       <div class="weight-bar-container">
                         <div class="weight-bar" id="weight-bar-<?php echo htmlspecialchars(str_replace(' ', '-', $domain)); ?>" style="width: 50%;"></div>
                       </div>
@@ -567,52 +602,52 @@
             <div class="landing-card-right">
               <div class="maturity-levels-display">
                 <h3>
-                  <i class="fa-solid fa-layer-group"></i> CMMI Maturity Levels
+                  <i class="fa-solid fa-layer-group"></i> <?php echo __e('landing.cmmi_levels'); ?>
                 </h3>
 
                 <div class="maturity-level-item level-initial">
                   <div class="maturity-level-name">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    Initial
-                    <span class="maturity-level-range">(0-20%)</span>
+                    <?php echo __e('maturity.initial'); ?>
+                    <span class="maturity-level-range">(<?php echo __e('maturity.initial.range'); ?>)</span>
                   </div>
-                  <div class="maturity-level-desc">Unpredictable, poorly controlled, reactive processes</div>
+                  <div class="maturity-level-desc"><?php echo __e('maturity.initial.short'); ?></div>
                 </div>
 
                 <div class="maturity-level-item level-managed">
                   <div class="maturity-level-name">
                     <i class="fa-solid fa-clipboard-list"></i>
-                    Managed
-                    <span class="maturity-level-range">(21-40%)</span>
+                    <?php echo __e('maturity.managed'); ?>
+                    <span class="maturity-level-range">(<?php echo __e('maturity.managed.range'); ?>)</span>
                   </div>
-                  <div class="maturity-level-desc">Projects planned and executed per policy, basic controls in place</div>
+                  <div class="maturity-level-desc"><?php echo __e('maturity.managed.short'); ?></div>
                 </div>
 
                 <div class="maturity-level-item level-defined">
                   <div class="maturity-level-name">
                     <i class="fa-solid fa-sitemap"></i>
-                    Defined
-                    <span class="maturity-level-range">(41-60%)</span>
+                    <?php echo __e('maturity.defined'); ?>
+                    <span class="maturity-level-range">(<?php echo __e('maturity.defined.range'); ?>)</span>
                   </div>
-                  <div class="maturity-level-desc">Standardized, documented, and proactive processes organization-wide</div>
+                  <div class="maturity-level-desc"><?php echo __e('maturity.defined.short'); ?></div>
                 </div>
 
                 <div class="maturity-level-item level-quantitative">
                   <div class="maturity-level-name">
                     <i class="fa-solid fa-chart-line"></i>
-                    Quantitatively Managed
-                    <span class="maturity-level-range">(61-80%)</span>
+                    <?php echo __e('maturity.quantitative'); ?>
+                    <span class="maturity-level-range">(<?php echo __e('maturity.quantitative.range'); ?>)</span>
                   </div>
-                  <div class="maturity-level-desc">Measured and controlled using statistical techniques and data</div>
+                  <div class="maturity-level-desc"><?php echo __e('maturity.quantitative.short'); ?></div>
                 </div>
 
                 <div class="maturity-level-item level-optimizing">
                   <div class="maturity-level-name">
                     <i class="fa-solid fa-rocket"></i>
-                    Optimizing
-                    <span class="maturity-level-range">(81-100%)</span>
+                    <?php echo __e('maturity.optimizing'); ?>
+                    <span class="maturity-level-range">(<?php echo __e('maturity.optimizing.range'); ?>)</span>
                   </div>
-                  <div class="maturity-level-desc">Continuous improvement and innovation-focused processes</div>
+                  <div class="maturity-level-desc"><?php echo __e('maturity.optimizing.short'); ?></div>
                 </div>
               </div>
             </div>
@@ -624,6 +659,28 @@
         // Profile data embedded from PHP
         const profilesData = <?php echo json_encode($profiles); ?>;
         const domainNames = <?php echo json_encode($domainNames); ?>;
+
+        // Translation data for JavaScript
+        const translations = <?php
+          echo json_encode([
+            'profiles' => [
+              'balanced' => ['name' => __('profile.balanced.name'), 'description' => __('profile.balanced.description')],
+              'financial' => ['name' => __('profile.financial.name'), 'description' => __('profile.financial.description')],
+              'healthcare' => ['name' => __('profile.healthcare.name'), 'description' => __('profile.healthcare.description')],
+              'government' => ['name' => __('profile.government.name'), 'description' => __('profile.government.description')],
+              'technology' => ['name' => __('profile.technology.name'), 'description' => __('profile.technology.description')],
+              'manufacturing' => ['name' => __('profile.manufacturing.name'), 'description' => __('profile.manufacturing.description')],
+              'telecommunications' => ['name' => __('profile.telecommunications.name'), 'description' => __('profile.telecommunications.description')],
+              'energy' => ['name' => __('profile.energy.name'), 'description' => __('profile.energy.description')],
+              'custom' => ['name' => __('profile.custom.name'), 'description' => __('profile.custom.description')],
+            ]
+          ]);
+        ?>;
+
+        // Language change function
+        function changeLanguage(locale) {
+          window.location.href = '?locale=' + locale;
+        }
 
         // Custom weights storage
         let customWeights = {};
@@ -641,10 +698,10 @@
           // Update profile description
           const descIcon = document.querySelector('.profile-description i');
           descIcon.className = 'fa-solid ' + profile.icon;
-          document.getElementById('profile-description-text').textContent = profile.description;
+          document.getElementById('profile-description-text').textContent = translations.profiles[profileKey].description;
 
           // Update profile name in Domain Weighting header
-          document.getElementById('profile-name-display').textContent = profile.name;
+          document.getElementById('profile-name-display').textContent = translations.profiles[profileKey].name;
 
           // Show/hide custom weights section
           const customSection = document.getElementById('custom-weights-section');
@@ -742,7 +799,19 @@
   </div>
 
   <footer class="disclaimer-footer">
-    <p><strong>Disclaimer:</strong> This Digital Sovereignty Readiness Assessment Tool is provided by Red Hat for informational purposes only to help organizations review their general sovereign posture. It cannot be used to validate an organization’s compliance with any specific sovereignty requirements. It is not endorsed by any regulatory authority, and its findings or recommendations do not constitute legal advice. Red Hat bears no legal responsibility or liability for the results or its use. No identity data will be collected or saved.</p>
+    <p><strong><?php echo __e('footer.disclaimer'); ?></strong> <?php echo __e('footer.disclaimer_text'); ?></p>
   </footer>
+
+  <style>
+    .language-selector select:hover {
+      border-color: #0d60f8;
+    }
+
+    .language-selector select:focus {
+      outline: none;
+      border-color: #0d60f8;
+      box-shadow: 0 0 0 2px rgba(13, 96, 248, 0.2);
+    }
+  </style>
 </body>
 </html>
