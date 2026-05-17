@@ -165,7 +165,7 @@ $html = '<!DOCTYPE html>
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'DejaVu Sans', sans-serif;
             color: #333;
             line-height: 1.6;
             margin: 0;
@@ -557,7 +557,7 @@ $html .= '
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
-$options->set('defaultFont', 'Arial');
+$options->set('defaultFont', 'DejaVu Sans'); // DejaVu Sans supports Unicode including Japanese characters
 
 // Initialize Dompdf
 $dompdf = new Dompdf($options);
