@@ -1,9 +1,24 @@
+<?php
+// Start session for locale management and assessment data
+session_start();
+
+// Load internationalization
+require_once __DIR__ . '/../i18n/I18n.php';
+
+// Handle locale change request
+if (isset($_GET['locale'])) {
+    setLocale($_GET['locale']);
+    // Redirect to remove locale parameter from URL
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+    exit;
+}
+?>
 <!doctype html>
-<html lang="en-us" class="pf-theme-dark">
+<html lang="<?php echo getLocale(); ?>" dir="<?php echo getTextDirection(); ?>" class="pf-theme-dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Results - Digital Sovereignty Readiness Assessment</title>
+  <title><?php echo __e('results.title'); ?> - Viewfinder</title>
 
   <!-- Reuse existing CSS from parent directory -->
   <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
@@ -39,22 +54,41 @@
 </head>
 
 <body>
+  <!-- Language Selector -->
+  <div class="language-selector no-print" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+    <label for="language-select" style="color: #9ec7fc; margin-right: 0.5rem;">
+      <i class="fa-solid fa-globe"></i>
+    </label>
+    <select id="language-select"
+            onchange="changeLanguage(this.value)"
+            style="background: #2a2a2a; color: #ccc; border: 1px solid #444; padding: 0.5rem; border-radius: 4px; cursor: pointer;">
+      <?php
+      $availableLocales = getAvailableLocales();
+      $currentLocale = getLocale();
+
+      foreach ($availableLocales as $locale):
+      ?>
+        <option value="<?php echo $locale; ?>"
+                <?php echo $locale === $currentLocale ? 'selected' : ''; ?>>
+          <?php echo getLocaleName($locale); ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
   <header class="pf-c-page__header no-print">
     <div class="pf-c-page__header-brand">
       <div class="pf-c-page__header-brand-toggle"></div>
     </div>
 
     <div class="widget">
-      <a href="../index.php"><button><i class="fa-solid fa-home"></i> Home</button></a>
-      <a href="index.php"><button style="margin-left: 1rem;">New Assessment</button></a>
+      <a href="../index.php"><button><i class="fa-solid fa-home"></i> <?php echo __e('common.home'); ?></button></a>
+      <a href="index.php"><button style="margin-left: 1rem;"><?php echo __e('assessment.button.new'); ?></button></a>
     </div>
   </header>
 
   <div class="container">
     <?php
-    // Start session to store results for PDF generation
-    session_start();
-
     // Store POST data in session for PDF generator
     $_SESSION['assessment_data'] = $_POST;
 
@@ -85,12 +119,7 @@
                 $domainWeights[$domainName] = 1.0;
             }
         }
-        // Update profile data description for custom
-        if (array_sum($domainWeights) == count($domainWeights)) {
-            $profileData['description'] = 'Custom profile with balanced weighting (all domains set to 1.0×)';
-        } else {
-            $profileData['description'] = 'Custom profile with user-defined domain weightings';
-        }
+        // Profile description key already set in profiles.php
     } else {
         $domainWeights = $profileData['weights'];
     }
@@ -126,8 +155,9 @@
                         if ($value === 'unknown') {
                             $unknownQuestions[] = [
                                 'domain' => $domainName,
-                                'question' => $question['text'],
-                                'tooltip' => $question['tooltip'] ?? ''
+                                'domain_key' => $domainData['name_key'],
+                                'question_key' => $question['text_key'],
+                                'tooltip_key' => $question['tooltip_key'] ?? ''
                             ];
                             // Don't count toward score, but don't penalize either
                         } else {
@@ -136,7 +166,7 @@
                             $domainScores[$domainName] += $intValue;
                             // Only add to responses if answer was "Yes" (value > 0)
                             if ($intValue > 0) {
-                                $domainResponses[$domainName][] = $question['text'];
+                                $domainResponses[$domainName][] = $question['text_key'];
                             }
                         }
                         break 2;
@@ -173,35 +203,30 @@
     // Defined: 41-60% (8.41-12.6 points), Quantitatively Managed: 61-80% (12.61-16.8 points)
     // Optimizing: 81-100% (16.81-21 points)
     if ($weightedScore <= 4.2) {
-        $maturityLevel = 'Initial';
+        $maturityLevel = 'maturity.initial';
         $priorityClass = 'maturity-initial';
         $priorityIcon = 'fa-circle-exclamation';
-        $recommendation = 'Initial Level';
-        $recommendationDetail = 'Processes are unpredictable, poorly controlled, and reactive. Your organization has ad-hoc digital sovereignty practices with significant dependencies on external providers. Success depends on individual heroics rather than proven processes.';
+        $recommendationDetail = 'maturity.initial.description';
     } elseif ($weightedScore <= 8.4) {
-        $maturityLevel = 'Managed';
+        $maturityLevel = 'maturity.managed';
         $priorityClass = 'maturity-managed';
         $priorityIcon = 'fa-clipboard-list';
-        $recommendation = 'Managed Level';
-        $recommendationDetail = 'Projects are planned and executed in accordance with policy. Your organization manages digital sovereignty requirements at the project level, but processes may not be repeatable across the organization. Basic controls are in place but not yet standardized.';
+        $recommendationDetail = 'maturity.managed.description';
     } elseif ($weightedScore <= 12.6) {
-        $maturityLevel = 'Defined';
+        $maturityLevel = 'maturity.defined';
         $priorityClass = 'maturity-defined';
         $priorityIcon = 'fa-sitemap';
-        $recommendation = 'Defined Level';
-        $recommendationDetail = 'Processes are well characterized, understood, and proactive. Your organization has documented and standardized digital sovereignty processes across all domains. Practices are consistent and repeatable, with clear governance structures in place.';
+        $recommendationDetail = 'maturity.defined.description';
     } elseif ($weightedScore <= 16.8) {
-        $maturityLevel = 'Quantitatively Managed';
+        $maturityLevel = 'maturity.quantitative';
         $priorityClass = 'maturity-quantitative';
         $priorityIcon = 'fa-chart-line';
-        $recommendation = 'Quantitatively Managed Level';
-        $recommendationDetail = 'Processes are measured and controlled using quantitative data. Your organization manages digital sovereignty with statistical and analytical techniques, establishing quantitative objectives for quality and performance. Variations in process performance are understood and controlled.';
+        $recommendationDetail = 'maturity.quantitative.description';
     } else {
-        $maturityLevel = 'Optimizing';
+        $maturityLevel = 'maturity.optimizing';
         $priorityClass = 'maturity-optimizing';
         $priorityIcon = 'fa-rocket';
-        $recommendation = 'Optimizing Level';
-        $recommendationDetail = 'Focus is on continuous improvement and innovation. Your organization continuously improves digital sovereignty processes based on quantitative understanding. You are proactive in identifying and deploying innovative practices, maintaining industry-leading sovereignty posture.';
+        $recommendationDetail = 'maturity.optimizing.description';
     }
 
     $assessmentDate = date('F j, Y \a\t g:i A');
@@ -209,16 +234,16 @@
 
     <!-- Results Header -->
     <div class="results-header">
-      <h1><i class="fa-solid fa-chart-bar"></i> Digital Sovereignty Readiness Assessment Results</h1>
-      <p class="assessment-date"><strong>Assessment Date:</strong> <?php echo $assessmentDate; ?></p>
+      <h1><i class="fa-solid fa-chart-bar"></i> <?php echo __e('results.title'); ?></h1>
+      <p class="assessment-date"><strong><?php echo __e('results.assessment_date'); ?></strong> <?php echo $assessmentDate; ?></p>
 
       <!-- Profile Information -->
       <div style="text-align: center; margin-top: 1rem; padding: 1rem; background: #1a1a1a; border-radius: 4px; border: 1px solid #444;">
         <i class="fa-solid <?php echo htmlspecialchars($profileData['icon']); ?>" style="color: #0d60f8; margin-right: 0.5rem; font-size: 1.2rem;"></i>
-        <strong style="color: #9ec7fc; font-size: 1.1rem;">Profile:</strong>
-        <span style="color: #fff; font-size: 1.1rem; margin-left: 0.5rem;"><?php echo htmlspecialchars($profileData['name']); ?></span>
+        <strong style="color: #9ec7fc; font-size: 1.1rem;"><?php echo __e('results.profile'); ?></strong>
+        <span style="color: #fff; font-size: 1.1rem; margin-left: 0.5rem;"><?php echo __e($profileData['name_key']); ?></span>
         <p style="color: #999; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
-          <?php echo htmlspecialchars($profileData['description']); ?>
+          <?php echo __e($profileData['description_key']); ?>
         </p>
       </div>
     </div>
@@ -228,7 +253,7 @@
       <div class="score-icon">
         <i class="fa-solid <?php echo $priorityIcon; ?>"></i>
       </div>
-      <h2><?php echo $maturityLevel; ?> Maturity Level</h2>
+      <h2><?php echo __e($maturityLevel); ?> <?php echo __e('results.maturity_level'); ?></h2>
 
       <?php
       // Calculate percentage for visual display (based on weighted score)
@@ -248,36 +273,35 @@
           <div class="progress-text">
             <div class="percentage-display"><?php echo $scorePercentage; ?>%</div>
             <div class="score-detail">
-              <strong><?php echo number_format($weightedScore, 1); ?></strong> of <?php echo $maxScore; ?> points
+              <strong><?php echo number_format($weightedScore, 1); ?></strong> <?php echo __('results.of_points', ['max' => $maxScore]); ?>
               <br>
-              <span style="font-size: 0.8rem; color: #999;">(Raw: <?php echo $totalScore; ?> pts)</span>
+              <span style="font-size: 0.8rem; color: #999;">(<?php echo __('results.raw_score', ['score' => $totalScore]); ?>)</span>
             </div>
           </div>
         </div>
       </div>
 
-      <h3 class="recommendation-title"><?php echo $recommendation; ?></h3>
-      <p class="recommendation-detail"><?php echo $recommendationDetail; ?></p>
+      <h3 class="recommendation-title"><?php echo __e($maturityLevel); ?></h3>
+      <p class="recommendation-detail"><?php echo __e($recommendationDetail); ?></p>
     </div>
 
     <!-- Domain Breakdown -->
     <div class="domain-breakdown">
-      <h2><i class="fa-solid fa-table"></i> Domain Analysis</h2>
-      <p class="section-intro">Breakdown of your readiness across the 7 Digital Sovereignty domains:</p>
+      <h2><i class="fa-solid fa-table"></i> <?php echo __e('results.domain_analysis'); ?></h2>
+      <p class="section-intro"><?php echo __e('results.domain_analysis.intro'); ?></p>
       <p class="section-intro" style="font-size: 0.9rem; color: #999; font-style: italic;">
-        <i class="fa-solid fa-info-circle"></i> Weights reflect the importance of each domain for the <strong><?php echo htmlspecialchars($profileData['name']); ?></strong> profile.
-        Domains with higher weights (≥1.5×) contribute more to your overall score.
+        <i class="fa-solid fa-info-circle"></i> <?php echo __('results.domain_analysis.weights_note', ['profile' => __($profileData['name_key'])]); ?>
       </p>
 
       <div class="domain-table-wrapper">
         <table class="domain-table">
           <thead>
             <tr>
-              <th>Domain</th>
-              <th style="text-align: center;">Score</th>
-              <th style="text-align: center;">Weight</th>
-              <th style="text-align: center;">Progress</th>
-              <th>Maturity Level</th>
+              <th><?php echo __e('results.table.domain'); ?></th>
+              <th style="text-align: center;"><?php echo __e('results.table.score'); ?></th>
+              <th style="text-align: center;"><?php echo __e('results.table.weight'); ?></th>
+              <th style="text-align: center;"><?php echo __e('results.table.progress'); ?></th>
+              <th><?php echo __e('results.table.maturity'); ?></th>
             </tr>
           </thead>
           <tbody>
@@ -293,27 +317,27 @@
                 if ($percentage <= 20) {
                     $strengthClass = 'strength-initial';
                     $strengthIcon = 'fa-circle-exclamation';
-                    $strengthText = 'Initial';
+                    $strengthText = 'maturity.initial';
                 } elseif ($percentage <= 40) {
                     $strengthClass = 'strength-managed';
                     $strengthIcon = 'fa-clipboard-list';
-                    $strengthText = 'Managed';
+                    $strengthText = 'maturity.managed';
                 } elseif ($percentage <= 60) {
                     $strengthClass = 'strength-defined';
                     $strengthIcon = 'fa-sitemap';
-                    $strengthText = 'Defined';
+                    $strengthText = 'maturity.defined';
                 } elseif ($percentage <= 80) {
                     $strengthClass = 'strength-quantitative';
                     $strengthIcon = 'fa-chart-line';
-                    $strengthText = 'Quantitatively Managed';
+                    $strengthText = 'maturity.quantitative';
                 } else {
                     $strengthClass = 'strength-optimizing';
                     $strengthIcon = 'fa-rocket';
-                    $strengthText = 'Optimizing';
+                    $strengthText = 'maturity.optimizing';
                 }
             ?>
               <tr>
-                <td><strong><?php echo htmlspecialchars($domainName); ?></strong></td>
+                <td><strong><?php echo __e($domainData['name_key']); ?></strong></td>
                 <td style="text-align: center;">
                   <span class="domain-score-cell"><?php echo $score; ?>/<?php echo $maxDomainScore; ?></span>
                 </td>
@@ -331,7 +355,7 @@
                 </td>
                 <td>
                   <span class="strength-badge <?php echo $strengthClass; ?>">
-                    <i class="fa-solid <?php echo $strengthIcon; ?>"></i> <?php echo $strengthText; ?>
+                    <i class="fa-solid <?php echo $strengthIcon; ?>"></i> <?php echo __e($strengthText); ?>
                   </span>
                 </td>
               </tr>
@@ -344,10 +368,9 @@
     <!-- Questions to Research -->
     <?php if (!empty($unknownQuestions)): ?>
     <div class="unknown-questions-section">
-      <h2><i class="fa-solid fa-clipboard-question"></i> Questions to Research</h2>
+      <h2><i class="fa-solid fa-clipboard-question"></i> <?php echo __e('results.research_questions'); ?></h2>
       <p class="section-description">
-        The following questions were marked as "Don't Know". Research these areas to get a complete picture
-        of your organization's Digital Sovereignty readiness and identify opportunities for improvement.
+        <?php echo __e('results.research_questions.description'); ?>
       </p>
 
       <?php
@@ -361,17 +384,17 @@
       <div class="unknown-questions-list">
         <?php foreach ($unknownByDomain as $domainName => $domainUnknowns): ?>
           <div class="unknown-domain-section">
-            <h3><i class="fa-solid fa-folder-open"></i> <?php echo htmlspecialchars($domainName); ?></h3>
+            <h3><i class="fa-solid fa-folder-open"></i> <?php echo __e($domainUnknowns[0]['domain_key']); ?></h3>
             <ul class="unknown-question-items">
               <?php foreach ($domainUnknowns as $uq): ?>
                 <li class="unknown-question-item">
                   <span class="question-icon"><i class="fa-solid fa-question-circle"></i></span>
                   <div class="question-content">
-                    <div class="question-text"><?php echo htmlspecialchars($uq['question']); ?></div>
-                    <?php if (!empty($uq['tooltip'])): ?>
+                    <div class="question-text"><?php echo __e($uq['question_key']); ?></div>
+                    <?php if (!empty($uq['tooltip_key'])): ?>
                       <div class="question-context">
                         <i class="fa-solid fa-lightbulb"></i>
-                        <strong>Context:</strong> <?php echo htmlspecialchars($uq['tooltip']); ?>
+                        <strong>Context:</strong> <?php echo __e($uq['tooltip_key']); ?>
                       </div>
                     <?php endif; ?>
                   </div>
@@ -381,20 +404,20 @@
           </div>
         <?php endforeach; ?>
       </div>
-
-      <div class="discovery-tip">
-        <i class="fa-solid fa-circle-info"></i>
-        <strong>Tip:</strong> Understanding these areas will help you identify gaps in your digital sovereignty posture
-        and prioritize improvements to strengthen your organization's independence and resilience.
-      </div>
+    </div>
+    <?php else: ?>
+    <div class="unknown-questions-section">
+      <p style="text-align: center; padding: 2rem; color: #999;">
+        <i class="fa-solid fa-circle-check"></i> <?php echo __e('results.no_research_questions'); ?>
+      </p>
     </div>
     <?php endif; ?>
 
     <!-- Improvement Actions -->
     <div class="improvement-actions">
-      <h2><i class="fa-solid fa-bullseye"></i> Recommended Improvement Actions</h2>
+      <h2><i class="fa-solid fa-bullseye"></i> <?php echo __e('results.improvement_actions'); ?></h2>
 
-      <?php if ($maturityLevel === 'Initial'): ?>
+      <?php if ($maturityLevel === 'maturity.initial'): ?>
         <div class="action-priority maturity-initial">
           <h3><i class="fa-solid fa-circle-exclamation"></i> Critical Actions for Initial Level</h3>
           <p>Processes are unpredictable and reactive. Establish basic digital sovereignty awareness and controls:</p>
@@ -418,7 +441,7 @@
           </div>
         </div>
 
-      <?php elseif ($maturityLevel === 'Managed'): ?>
+      <?php elseif ($maturityLevel === 'maturity.managed'): ?>
         <div class="action-priority maturity-managed">
           <h3><i class="fa-solid fa-clipboard-list"></i> Foundation Actions for Managed Level</h3>
           <p>Projects are managed but processes are not yet standardized. Build repeatable practices:</p>
@@ -442,7 +465,7 @@
           </div>
         </div>
 
-      <?php elseif ($maturityLevel === 'Defined'): ?>
+      <?php elseif ($maturityLevel === 'maturity.defined'): ?>
         <div class="action-priority maturity-defined">
           <h3><i class="fa-solid fa-sitemap"></i> Standardization Actions for Defined Level</h3>
           <p>Processes are documented and standardized. Focus on organization-wide consistency and optimization:</p>
@@ -466,7 +489,7 @@
           </div>
         </div>
 
-      <?php elseif ($maturityLevel === 'Quantitatively Managed'): ?>
+      <?php elseif ($maturityLevel === 'maturity.quantitative'): ?>
         <div class="action-priority maturity-quantitative">
           <h3><i class="fa-solid fa-chart-line"></i> Measurement Actions for Quantitatively Managed Level</h3>
           <p>Processes are measured and statistically controlled. Optimize through data-driven decisions:</p>
@@ -510,7 +533,7 @@
 
     <!-- Detailed Domain Insights -->
     <div class="domain-insights">
-      <h2><i class="fa-solid fa-list-check"></i> Detailed Domain Insights</h2>
+      <h2><i class="fa-solid fa-list-check"></i> <?php echo __e('results.domain_insights'); ?></h2>
       <p class="section-intro">Review your specific responses across all domains:</p>
 
       <?php foreach ($questions as $domainName => $domainData):
@@ -521,16 +544,16 @@
       ?>
         <div class="domain-insight-card">
           <div class="domain-insight-header">
-            <h3><?php echo htmlspecialchars($domainName); ?></h3>
+            <h3><?php echo __e($domainData['name_key']); ?></h3>
             <span class="insight-score"><?php echo $score; ?>/<?php echo count($domainData['questions']); ?></span>
           </div>
-          <p class="domain-insight-description"><?php echo htmlspecialchars($domainData['description']); ?></p>
+          <p class="domain-insight-description"><?php echo __e($domainData['description_key']); ?></p>
 
           <div class="requirements-found">
             <h4>Requirements Identified:</h4>
             <ul>
-              <?php foreach ($responses as $response): ?>
-                <li><i class="fa-solid fa-check"></i> <?php echo htmlspecialchars($response); ?></li>
+              <?php foreach ($responses as $response_key): ?>
+                <li><i class="fa-solid fa-check"></i> <?php echo __e($response_key); ?></li>
               <?php endforeach; ?>
             </ul>
           </div>
@@ -550,10 +573,10 @@
     <!-- Action Buttons -->
     <div class="form-actions no-print">
       <a href="generate-pdf.php" class="btn-primary">
-        <i class="fa-solid fa-file-pdf"></i> Download PDF
+        <i class="fa-solid fa-file-pdf"></i> <?php echo __e('results.download_pdf'); ?>
       </a>
       <a href="index.php" class="btn-secondary">
-        <i class="fa-solid fa-rotate-left"></i> New Assessment
+        <i class="fa-solid fa-rotate-left"></i> <?php echo __e('results.take_new'); ?>
       </a>
     </div>
 
@@ -562,5 +585,24 @@
       <p><small>Generated by Viewfinder Digital Sovereignty Readiness Assessment on <?php echo $assessmentDate; ?></small></p>
     </div>
   </div>
+
+  <script>
+    // Language change function
+    function changeLanguage(locale) {
+      window.location.href = '?locale=' + locale;
+    }
+  </script>
+
+  <style>
+    .language-selector select:hover {
+      border-color: #0d60f8;
+    }
+
+    .language-selector select:focus {
+      outline: none;
+      border-color: #0d60f8;
+      box-shadow: 0 0 0 2px rgba(13, 96, 248, 0.2);
+    }
+  </style>
 </body>
 </html>

@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../i18n/I18n.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -13,7 +14,7 @@ session_start();
 
 // Check if we have assessment data in session
 if (!isset($_SESSION['assessment_data']) || empty($_SESSION['assessment_data'])) {
-    die('No assessment data found. Please complete the assessment first.');
+    die(__('error.no_assessment_data', [], 'No assessment data found. Please complete the assessment first.'));
 }
 
 // Get assessment data from session
@@ -78,8 +79,9 @@ foreach ($assessmentData as $key => $value) {
                     if ($value === 'unknown') {
                         $unknownQuestions[] = [
                             'domain' => $domainName,
-                            'question' => $question['text'],
-                            'tooltip' => $question['tooltip'] ?? ''
+                            'domain_key' => $domainData['name_key'],
+                            'question_key' => $question['text_key'],
+                            'tooltip_key' => $question['tooltip_key'] ?? ''
                         ];
                     } else {
                         $intValue = intval($value);
@@ -87,7 +89,7 @@ foreach ($assessmentData as $key => $value) {
                         $domainScores[$domainName] += $intValue;
                         // Track "Yes" responses (value > 0)
                         if ($intValue > 0) {
-                            $domainResponses[$domainName][] = $question['text'];
+                            $domainResponses[$domainName][] = $question['text_key'];
                         }
                     }
                     break 2;
@@ -121,31 +123,35 @@ $weightedScore = $totalWeight > 0 ? ($weightedSum / $totalWeight) * 21 : 0;
 
 // Determine maturity level based on WEIGHTED score (CMMI 5-level system)
 if ($weightedScore <= 4.2) {
-    $maturityLevel = 'Initial';
+    $maturityLevelKey = 'maturity.initial';
     $maturityColor = '#c9190b';
     $maturityIcon = '🔴';
-    $recommendationDetail = 'Processes are unpredictable, poorly controlled, and reactive. Your organization has ad-hoc digital sovereignty practices with significant dependencies on external providers. Success depends on individual heroics rather than proven processes.';
+    $recommendationDetailKey = 'maturity.initial.description';
 } elseif ($weightedScore <= 8.4) {
-    $maturityLevel = 'Managed';
+    $maturityLevelKey = 'maturity.managed';
     $maturityColor = '#ec7a08';
     $maturityIcon = '🟠';
-    $recommendationDetail = 'Projects are planned and executed in accordance with policy. Your organization manages digital sovereignty requirements at the project level, but processes may not be repeatable across the organization. Basic controls are in place but not yet standardized.';
+    $recommendationDetailKey = 'maturity.managed.description';
 } elseif ($weightedScore <= 12.6) {
-    $maturityLevel = 'Defined';
+    $maturityLevelKey = 'maturity.defined';
     $maturityColor = '#ffc107';
     $maturityIcon = '🟡';
-    $recommendationDetail = 'Processes are well characterized, understood, and proactive. Your organization has documented and standardized digital sovereignty processes across all domains. Practices are consistent and repeatable, with clear governance structures in place.';
+    $recommendationDetailKey = 'maturity.defined.description';
 } elseif ($weightedScore <= 16.8) {
-    $maturityLevel = 'Quantitatively Managed';
+    $maturityLevelKey = 'maturity.quantitative';
     $maturityColor = '#8bc34a';
     $maturityIcon = '🟢';
-    $recommendationDetail = 'Processes are measured and controlled using quantitative data. Your organization manages digital sovereignty with statistical and analytical techniques, establishing quantitative objectives for quality and performance. Variations in process performance are understood and controlled.';
+    $recommendationDetailKey = 'maturity.quantitative.description';
 } else {
-    $maturityLevel = 'Optimizing';
+    $maturityLevelKey = 'maturity.optimizing';
     $maturityColor = '#2aaa04';
     $maturityIcon = '🚀';
-    $recommendationDetail = 'Focus is on continuous improvement and innovation. Your organization continuously improves digital sovereignty processes based on quantitative understanding. You are proactive in identifying and deploying innovative practices, maintaining industry-leading sovereignty posture.';
+    $recommendationDetailKey = 'maturity.optimizing.description';
 }
+
+// Get translated strings
+$maturityLevel = __($maturityLevelKey);
+$recommendationDetail = __($recommendationDetailKey);
 
 // Calculate percentage based on weighted score
 $scorePercentage = round(($weightedScore / $maxScore) * 100);
@@ -156,7 +162,7 @@ $html = '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Digital Sovereignty Readiness Assessment Results</title>
+    <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -296,35 +302,35 @@ $html = '<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <h1>Digital Sovereignty Readiness Assessment Results</h1>
-        <div class="date">Assessment Date: ' . htmlspecialchars($assessmentDate) . '</div>
+        <h1>' . htmlspecialchars(__('pdf.title')) . '</h1>
+        <div class="date">' . htmlspecialchars(__('results.assessment_date')) . ': ' . htmlspecialchars($assessmentDate) . '</div>
     </div>
 
     <div class="score-card">
-        <h2>' . htmlspecialchars($maturityLevel) . ' Maturity Level</h2>
+        <h2>' . htmlspecialchars($maturityLevel) . ' ' . htmlspecialchars(__('results.maturity_level')) . '</h2>
         <div class="score-circle">' . $scorePercentage . '%</div>
-        <div class="score-detail">' . number_format($weightedScore, 1) . ' of ' . $maxScore . ' points (weighted)</div>
-        <div class="score-detail" style="font-size: 0.8em; color: #666;">Raw score: ' . $totalScore . ' points | Profile: ' . htmlspecialchars($profileData['name']) . '</div>
+        <div class="score-detail">' . number_format($weightedScore, 1) . ' ' . htmlspecialchars(__('results.of_points', ['max' => $maxScore])) . ' (weighted)</div>
+        <div class="score-detail" style="font-size: 0.8em; color: #666;">' . htmlspecialchars(__('results.raw_score', ['score' => $totalScore])) . ' | ' . htmlspecialchars(__('results.profile')) . ': ' . htmlspecialchars(__($profileData['name_key'])) . '</div>
         <div class="recommendation">' . htmlspecialchars($recommendationDetail) . '</div>
     </div>
 
     <div class="section" style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
         <h3 style="margin-top: 0; color: #333; border-bottom: none; font-size: 14px;">Profile Information</h3>
-        <p style="margin: 5px 0; font-size: 11pt;"><strong>' . htmlspecialchars($profileData['name']) . '</strong></p>
-        <p style="margin: 5px 0; color: #666; font-size: 10pt;">' . htmlspecialchars($profileData['description']) . '</p>
+        <p style="margin: 5px 0; font-size: 11pt;"><strong>' . htmlspecialchars(__($profileData['name_key'])) . '</strong></p>
+        <p style="margin: 5px 0; color: #666; font-size: 10pt;">' . htmlspecialchars(__($profileData['description_key'])) . '</p>
     </div>
 
     <div class="section">
-        <h3>Domain Analysis</h3>
-        <p style="font-size: 10pt; color: #666; margin: 10px 0;">Weights reflect the importance of each domain for the <strong>' . htmlspecialchars($profileData['name']) . '</strong> profile. Domains with higher weights (\u2265\u00a01.5\u00d7) contribute more to your overall score.</p>
+        <h3>' . htmlspecialchars(__('results.domain_analysis')) . '</h3>
+        <p style="font-size: 10pt; color: #666; margin: 10px 0;">' . htmlspecialchars(__('results.domain_analysis.weights_note', ['profile' => __($profileData['name_key'])])) . '</p>
         <table>
             <thead>
                 <tr>
-                    <th>Domain</th>
-                    <th style="text-align: center;">Score</th>
-                    <th style="text-align: center;">Weight</th>
-                    <th style="text-align: center;">Percentage</th>
-                    <th>Maturity Level</th>
+                    <th>' . htmlspecialchars(__('results.table.domain')) . '</th>
+                    <th style="text-align: center;">' . htmlspecialchars(__('results.table.score')) . '</th>
+                    <th style="text-align: center;">' . htmlspecialchars(__('results.table.weight')) . '</th>
+                    <th style="text-align: center;">' . htmlspecialchars(__('results.table.progress')) . '</th>
+                    <th>' . htmlspecialchars(__('results.table.maturity')) . '</th>
                 </tr>
             </thead>
             <tbody>';
@@ -337,32 +343,32 @@ foreach ($questions as $domainName => $domainData) {
 
     if ($percentage == 0) {
         $badge = 'initial';
-        $levelText = 'Initial';
+        $levelTextKey = 'maturity.initial';
     } elseif ($percentage <= 20) {
         $badge = 'initial';
-        $levelText = 'Initial';
+        $levelTextKey = 'maturity.initial';
     } elseif ($percentage <= 40) {
         $badge = 'managed';
-        $levelText = 'Managed';
+        $levelTextKey = 'maturity.managed';
     } elseif ($percentage <= 60) {
         $badge = 'defined';
-        $levelText = 'Defined';
+        $levelTextKey = 'maturity.defined';
     } elseif ($percentage <= 80) {
         $badge = 'quantitative';
-        $levelText = 'Quantitatively Managed';
+        $levelTextKey = 'maturity.quantitative';
     } else {
         $badge = 'optimizing';
-        $levelText = 'Optimizing';
+        $levelTextKey = 'maturity.optimizing';
     }
 
     $weightStyle = $weight >= 1.5 ? 'background: #f0ab00; color: #fff; font-weight: bold;' : 'background: #f5f5f5; color: #333;';
 
     $html .= '<tr>
-                <td><strong>' . htmlspecialchars($domainName) . '</strong></td>
+                <td><strong>' . htmlspecialchars(__($domainData['name_key'])) . '</strong></td>
                 <td style="text-align: center;">' . $score . '/' . $maxDomainScore . '</td>
                 <td style="text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 3px; ' . $weightStyle . '">' . number_format($weight, 1) . '\u00d7</span></td>
                 <td style="text-align: center;">' . $percentage . '%</td>
-                <td><span class="badge badge-' . $badge . '">' . $levelText . '</span></td>
+                <td><span class="badge badge-' . $badge . '">' . htmlspecialchars(__($levelTextKey)) . '</span></td>
               </tr>';
 }
 
@@ -372,9 +378,9 @@ $html .= '  </tbody>
 
 // Recommended Improvement Actions section
 $html .= '<div class="section">
-    <h3>Recommended Improvement Actions</h3>';
+    <h3>' . htmlspecialchars(__('results.improvement_actions')) . '</h3>';
 
-if ($maturityLevel === 'Initial') {
+if ($maturityLevelKey === 'maturity.initial') {
     $html .= '<div class="improvement-section">
         <h4>Critical Actions for Initial Level</h4>
         <p>Processes are unpredictable and reactive. Establish basic digital sovereignty awareness and controls:</p>
@@ -394,7 +400,7 @@ if ($maturityLevel === 'Initial') {
             <li>Compliance requirement documentation (GDPR, NIS2, etc.)</li>
         </ul>
     </div>';
-} elseif ($maturityLevel === 'Managed') {
+} elseif ($maturityLevelKey === 'maturity.managed') {
     $html .= '<div class="improvement-section">
         <h4>Foundation Actions for Managed Level</h4>
         <p>Projects are managed but processes are not yet standardized. Build repeatable practices:</p>
@@ -414,7 +420,7 @@ if ($maturityLevel === 'Initial') {
             <li>Compliance tracking and reporting</li>
         </ul>
     </div>';
-} elseif ($maturityLevel === 'Defined') {
+} elseif ($maturityLevelKey === 'maturity.defined') {
     $html .= '<div class="improvement-section">
         <h4>Standardization Actions for Defined Level</h4>
         <p>Processes are documented and standardized. Focus on organization-wide consistency and optimization:</p>
@@ -434,7 +440,7 @@ if ($maturityLevel === 'Initial') {
             <li>Sovereignty metrics and KPIs definition</li>
         </ul>
     </div>';
-} elseif ($maturityLevel === 'Quantitatively Managed') {
+} elseif ($maturityLevelKey === 'maturity.quantitative') {
     $html .= '<div class="improvement-section">
         <h4>Measurement Actions for Quantitatively Managed Level</h4>
         <p>Processes are measured and statistically controlled. Optimize through data-driven decisions:</p>
@@ -474,7 +480,7 @@ $html .= '</div>';
 
 // Detailed Domain Insights section
 $html .= '<div class="section">
-    <h3>Detailed Domain Insights</h3>
+    <h3>' . htmlspecialchars(__('results.domain_insights')) . '</h3>
     <p style="font-size: 10pt; margin-bottom: 15px;">Review your specific responses across all domains:</p>';
 
 $hasAnyRequirements = false;
@@ -486,16 +492,16 @@ foreach ($questions as $domainName => $domainData) {
         $hasAnyRequirements = true;
         $html .= '<div style="background: #f9f9f9; padding: 12px; margin: 12px 0; border-left: 4px solid ' . $maturityColor . '; page-break-inside: avoid;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h4 style="margin: 0; color: #333; font-size: 13pt;">' . htmlspecialchars($domainName) . '</h4>
+                <h4 style="margin: 0; color: #333; font-size: 13pt;">' . htmlspecialchars(__($domainData['name_key'])) . '</h4>
                 <span style="background: ' . $maturityColor . '; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11pt;">' . $score . '/' . count($domainData['questions']) . '</span>
             </div>
-            <p style="margin: 8px 0; color: #666; font-size: 10pt;">' . htmlspecialchars($domainData['description']) . '</p>
+            <p style="margin: 8px 0; color: #666; font-size: 10pt;">' . htmlspecialchars(__($domainData['description_key'])) . '</p>
             <div style="margin-top: 10px;">
                 <strong style="font-size: 10pt; color: #333;">Requirements Identified:</strong>
                 <ul style="margin: 5px 0; padding-left: 20px;">';
 
-        foreach ($responses as $response) {
-            $html .= '<li style="margin: 4px 0; font-size: 10pt; color: #333;">' . htmlspecialchars($response) . '</li>';
+        foreach ($responses as $response_key) {
+            $html .= '<li style="margin: 4px 0; font-size: 10pt; color: #333;">' . htmlspecialchars(__($response_key)) . '</li>';
         }
 
         $html .= '</ul>
@@ -515,8 +521,8 @@ $html .= '</div>';
 // Questions to Research section
 if (!empty($unknownQuestions)) {
     $html .= '<div class="section">
-        <h3>Questions to Research</h3>
-        <p>The following questions were marked as "Don\'t Know". Research these areas to get a complete picture of your organization\'s Digital Sovereignty readiness:</p>
+        <h3>' . htmlspecialchars(__('results.research_questions')) . '</h3>
+        <p>' . htmlspecialchars(__('results.research_questions.description')) . '</p>
         <div class="unknown-list">';
 
     $unknownByDomain = [];
@@ -525,12 +531,12 @@ if (!empty($unknownQuestions)) {
     }
 
     foreach ($unknownByDomain as $domainName => $domainUnknowns) {
-        $html .= '<h4 style="color: #0066cc; margin-top: 15px;">' . htmlspecialchars($domainName) . '</h4>';
+        $html .= '<h4 style="color: #0066cc; margin-top: 15px;">' . htmlspecialchars(__($domainUnknowns[0]['domain_key'])) . '</h4>';
         foreach ($domainUnknowns as $uq) {
             $html .= '<div class="unknown-item">
-                        <strong>' . htmlspecialchars($uq['question']) . '</strong>';
-            if (!empty($uq['tooltip'])) {
-                $html .= '<p style="margin: 5px 0 0 0; font-size: 10pt; color: #666;">' . htmlspecialchars($uq['tooltip']) . '</p>';
+                        <strong>' . htmlspecialchars(__($uq['question_key'])) . '</strong>';
+            if (!empty($uq['tooltip_key'])) {
+                $html .= '<p style="margin: 5px 0 0 0; font-size: 10pt; color: #666;">' . htmlspecialchars(__($uq['tooltip_key'])) . '</p>';
             }
             $html .= '</div>';
         }
