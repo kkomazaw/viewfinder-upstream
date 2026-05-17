@@ -89,6 +89,7 @@ RUN composer install \
 # Copy application code
 COPY --chown=1001:0 index.php ./
 COPY --chown=1001:0 includes/ ./includes/
+COPY --chown=1001:0 i18n/ ./i18n/
 COPY --chown=1001:0 ds-qualifier/ ./ds-qualifier/
 COPY --chown=1001:0 error-pages/ ./error-pages/
 COPY --chown=1001:0 css/ ./css/

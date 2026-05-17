@@ -7,7 +7,7 @@ require_once __DIR__ . '/i18n/I18n.php';
 
 // Handle locale change request
 if (isset($_GET['locale'])) {
-    setLocale($_GET['locale']);
+    setAppLocale($_GET['locale']);
     // Redirect to remove locale parameter from URL
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;

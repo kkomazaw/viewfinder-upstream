@@ -189,7 +189,7 @@ function __e($key, $params = []) {
  * Set the current locale
  * @param string $locale
  */
-function setLocale($locale) {
+function setAppLocale($locale) {
     I18n::getInstance()->setLocale($locale);
     if (session_status() === PHP_SESSION_ACTIVE) {
         $_SESSION['locale'] = $locale;

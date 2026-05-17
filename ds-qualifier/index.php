@@ -7,7 +7,7 @@ require_once __DIR__ . '/../i18n/I18n.php';
 
 // Handle locale change request
 if (isset($_GET['locale'])) {
-    setLocale($_GET['locale']);
+    setAppLocale($_GET['locale']);
     // Rebuild URL without locale parameter
     $url = strtok($_SERVER['REQUEST_URI'], '?');
     parse_str($_SERVER['QUERY_STRING'] ?? '', $params);
