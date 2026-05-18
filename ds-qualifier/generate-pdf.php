@@ -159,8 +159,8 @@ $assessmentDate = date('F j, Y \a\t g:i A');
 
 // Determine font based on locale
 $locale = getLocale();
-$fontFamily = 'DejaVu Sans'; // Default for English
-$cssFontFamily = 'DejaVu Sans, sans-serif';
+$fontFamily = 'Arial'; // Default for English
+$cssFontFamily = 'Arial, sans-serif';
 
 if ($locale === 'ja') {
     // Use Noto Sans JP for Japanese
