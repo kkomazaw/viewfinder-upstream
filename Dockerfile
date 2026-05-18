@@ -95,10 +95,16 @@ RUN composer install \
         --no-progress \
     && composer clear-cache
 
-# Copy IPA Gothic font to Dompdf font directory
+# Copy IPA Gothic font to Dompdf font directory and register it
 RUN cp /usr/share/fonts/ipa/ipaexg.ttf vendor/dompdf/dompdf/lib/fonts/ && \
     cp /usr/share/fonts/ipa/ipaexm.ttf vendor/dompdf/dompdf/lib/fonts/ && \
+    # Create installed-fonts.json with IPA font registration
+    cp vendor/dompdf/dompdf/lib/fonts/installed-fonts.dist.json vendor/dompdf/dompdf/lib/fonts/installed-fonts.json && \
+    php -r '$fonts = json_decode(file_get_contents("vendor/dompdf/dompdf/lib/fonts/installed-fonts.json"), true); \
+            $fonts["ipaexg"] = ["normal" => "ipaexg", "bold" => "ipaexg", "italic" => "ipaexg", "bold_italic" => "ipaexg"]; \
+            file_put_contents("vendor/dompdf/dompdf/lib/fonts/installed-fonts.json", json_encode($fonts, JSON_PRETTY_PRINT));' && \
     chown 1001:0 vendor/dompdf/dompdf/lib/fonts/ipaex* && \
+    chown 1001:0 vendor/dompdf/dompdf/lib/fonts/installed-fonts.json && \
     chown -R 1001:0 vendor/dompdf/dompdf/lib/fonts/ && \
     chmod -R 775 vendor/dompdf/dompdf/lib/fonts/
 
