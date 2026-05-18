@@ -165,7 +165,7 @@ $html = '<!DOCTYPE html>
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: DejaVu Sans, sans-serif;
             color: #333;
             line-height: 1.6;
             margin: 0;
