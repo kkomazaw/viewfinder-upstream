@@ -52,12 +52,10 @@ RUN dnf install -y \
     && rm -rf /var/cache/dnf
 
 # Download and install Noto Sans JP font for Japanese PDF support
-# Using direct download from Google Fonts
+# Using variable font from google/fonts repository on GitHub
 RUN mkdir -p /usr/share/fonts/noto-jp && \
     cd /usr/share/fonts/noto-jp && \
-    wget -O NotoSansJP.zip "https://fonts.google.com/download?family=Noto%20Sans%20JP" && \
-    unzip NotoSansJP.zip && \
-    rm NotoSansJP.zip LICENSE.txt && \
+    wget "https://github.com/google/fonts/raw/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf" -O "NotoSansJP.ttf" && \
     chmod 644 *.ttf
 
 # ------------------------------------------------------------------------------
