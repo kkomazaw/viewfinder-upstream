@@ -51,13 +51,14 @@ RUN dnf install -y \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
-# Download and install Noto Sans CJK JP font for Japanese PDF support
-RUN mkdir -p /usr/share/fonts/noto-cjk && \
-    cd /usr/share/fonts/noto-cjk && \
-    wget -q https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKjp.zip && \
-    unzip -q 08_NotoSansCJKjp.zip && \
-    rm 08_NotoSansCJKjp.zip && \
-    chmod 644 *.otf
+# Download and install Noto Sans JP font for Japanese PDF support
+# Using direct download from Google Fonts
+RUN mkdir -p /usr/share/fonts/noto-jp && \
+    cd /usr/share/fonts/noto-jp && \
+    wget -O NotoSansJP.zip "https://fonts.google.com/download?family=Noto%20Sans%20JP" && \
+    unzip NotoSansJP.zip && \
+    rm NotoSansJP.zip LICENSE.txt && \
+    chmod 644 *.ttf
 
 # ------------------------------------------------------------------------------
 # Apache Security Configuration
