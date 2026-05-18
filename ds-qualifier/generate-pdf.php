@@ -169,12 +169,26 @@ if ($locale === 'ja') {
 }
 
 // Build HTML for PDF
+$fontFaceRule = '';
+if ($locale === 'ja') {
+    // Add @font-face rule for IPA Ex Gothic
+    $fontPath = '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts/ipaexg.ttf';
+    $fontFaceRule = '@font-face {
+            font-family: "ipaexg";
+            src: url("' . $fontPath . '");
+            font-weight: normal;
+            font-style: normal;
+        }
+        ';
+}
+
 $html = '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
+        ' . $fontFaceRule . '
         body {
             font-family: ' . $cssFontFamily . ';
             color: #333;
