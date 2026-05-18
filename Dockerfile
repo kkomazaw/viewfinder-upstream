@@ -98,7 +98,9 @@ RUN composer install \
 # Copy IPA Gothic font to Dompdf font directory
 RUN cp /usr/share/fonts/ipa/ipaexg.ttf vendor/dompdf/dompdf/lib/fonts/ && \
     cp /usr/share/fonts/ipa/ipaexm.ttf vendor/dompdf/dompdf/lib/fonts/ && \
-    chown 1001:0 vendor/dompdf/dompdf/lib/fonts/ipaex*
+    chown 1001:0 vendor/dompdf/dompdf/lib/fonts/ipaex* && \
+    chown -R 1001:0 vendor/dompdf/dompdf/lib/fonts/ && \
+    chmod -R 775 vendor/dompdf/dompdf/lib/fonts/
 
 # ------------------------------------------------------------------------------
 # Application Files
