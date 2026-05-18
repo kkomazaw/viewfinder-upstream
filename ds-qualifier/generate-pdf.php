@@ -164,31 +164,18 @@ $cssFontFamily = 'Arial, sans-serif';
 
 if ($locale === 'ja') {
     // Use IPA Ex Gothic for Japanese (better Dompdf compatibility)
+    // Use only ipaexg without fallback to ensure all text uses Japanese font
     $fontFamily = 'ipaexg';
-    $cssFontFamily = 'ipaexg, sans-serif';
+    $cssFontFamily = 'ipaexg';
 }
 
 // Build HTML for PDF
-$fontFaceRule = '';
-if ($locale === 'ja') {
-    // Add @font-face rule for IPA Ex Gothic
-    $fontPath = '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts/ipaexg.ttf';
-    $fontFaceRule = '@font-face {
-            font-family: "ipaexg";
-            src: url("' . $fontPath . '");
-            font-weight: normal;
-            font-style: normal;
-        }
-        ';
-}
-
 $html = '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
-        ' . $fontFaceRule . '
         * {
             font-family: ' . $cssFontFamily . ';
         }
@@ -604,6 +591,10 @@ $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
 $options->set('defaultFont', $fontFamily);
+$options->set('chroot', realpath(__DIR__ . '/..'));
+$options->set('fontDir', __DIR__ . '/../vendor/dompdf/dompdf/lib/fonts/');
+$options->set('fontCache', __DIR__ . '/../vendor/dompdf/dompdf/lib/fonts/');
+$options->set('isFontSubsettingEnabled', true);
 
 // Initialize Dompdf
 $dompdf = new Dompdf($options);
