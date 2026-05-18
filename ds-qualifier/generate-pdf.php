@@ -569,11 +569,6 @@ $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
 $options->set('defaultFont', $fontFamily);
-if ($locale === 'ja') {
-    $options->set('fontDir', '/usr/share/fonts/ipa');
-}
-$options->set('fontCache', '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts');
-$options->set('isFontSubsettingEnabled', true);
 
 // Initialize Dompdf
 $dompdf = new Dompdf($options);
