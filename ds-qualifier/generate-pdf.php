@@ -157,6 +157,17 @@ $recommendationDetail = __($recommendationDetailKey);
 $scorePercentage = round(($weightedScore / $maxScore) * 100);
 $assessmentDate = date('F j, Y \a\t g:i A');
 
+// Determine font based on locale
+$locale = getLocale();
+$fontFamily = 'DejaVu Sans'; // Default for English
+$cssFontFamily = 'DejaVu Sans, sans-serif';
+
+if ($locale === 'ja') {
+    // Use Noto Sans CJK JP for Japanese
+    $fontFamily = 'notosanscjkjp';
+    $cssFontFamily = 'notosanscjkjp, sans-serif';
+}
+
 // Build HTML for PDF
 $html = '<!DOCTYPE html>
 <html>
@@ -165,7 +176,7 @@ $html = '<!DOCTYPE html>
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: ' . $cssFontFamily . ';
             color: #333;
             line-height: 1.6;
             margin: 0;
@@ -557,7 +568,10 @@ $html .= '
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
-$options->set('defaultFont', 'DejaVu Sans'); // DejaVu Sans supports Unicode including Japanese characters
+$options->set('defaultFont', $fontFamily);
+$options->set('fontDir', '/usr/share/fonts/google-noto-cjk');
+$options->set('fontCache', '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts');
+$options->set('isFontSubsettingEnabled', true);
 
 // Initialize Dompdf
 $dompdf = new Dompdf($options);

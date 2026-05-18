@@ -46,6 +46,7 @@ RUN dnf install -y \
         php-json \
         php-gd \
         php-mbstring \
+        google-noto-sans-cjk-jp-fonts \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
