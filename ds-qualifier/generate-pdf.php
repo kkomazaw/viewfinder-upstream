@@ -164,8 +164,8 @@ $cssFontFamily = 'DejaVu Sans, sans-serif';
 
 if ($locale === 'ja') {
     // Use Noto Sans CJK JP for Japanese
-    $fontFamily = 'notosanscjkjp';
-    $cssFontFamily = 'notosanscjkjp, sans-serif';
+    $fontFamily = 'NotoSansCJKjp';
+    $cssFontFamily = 'NotoSansCJKjp, sans-serif';
 }
 
 // Build HTML for PDF
@@ -569,7 +569,7 @@ $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
 $options->set('defaultFont', $fontFamily);
-$options->set('fontDir', '/usr/share/fonts/google-noto-cjk');
+$options->set('fontDir', '/usr/share/fonts/noto-cjk');
 $options->set('fontCache', '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts');
 $options->set('isFontSubsettingEnabled', true);
 
