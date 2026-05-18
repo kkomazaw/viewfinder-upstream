@@ -123,12 +123,13 @@ COPY --chown=1001:0 README.md ./
 RUN mkdir -p ${APP_ROOT}/logs
 
 # Set ownership and permissions for OpenShift compatibility
-# Files: 644, Directories: 755, Group writable: logs
+# Files: 644, Directories: 755, Group writable: logs and fonts
 RUN chown -R 1001:0 ${APP_ROOT} && \
     chmod -R g=u ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod 755 {} \; && \
     find ${APP_ROOT} -type f -exec chmod 644 {} \; && \
-    chmod 775 ${APP_ROOT}/logs
+    chmod 775 ${APP_ROOT}/logs && \
+    chmod -R 775 ${APP_ROOT}/vendor/dompdf/dompdf/lib/fonts/
 
 # ------------------------------------------------------------------------------
 # Runtime Configuration
