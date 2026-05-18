@@ -51,11 +51,14 @@ RUN dnf install -y \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
-# Download and install Noto Sans JP font for Japanese PDF support
-# Using variable font from google/fonts repository on GitHub
-RUN mkdir -p /usr/share/fonts/noto-jp && \
-    cd /usr/share/fonts/noto-jp && \
-    wget "https://github.com/google/fonts/raw/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf" -O "NotoSansJP.ttf" && \
+# Download and install IPA Gothic font for Japanese PDF support
+# IPA Gothic is a standard Japanese font that works well with Dompdf
+RUN mkdir -p /usr/share/fonts/ipa && \
+    cd /usr/share/fonts/ipa && \
+    wget "https://moji.or.jp/wp-content/ipafont/IPAexfont/IPAexfont00401.zip" && \
+    unzip IPAexfont00401.zip && \
+    mv IPAexfont00401/*.ttf . && \
+    rm -rf IPAexfont00401 IPAexfont00401.zip && \
     chmod 644 *.ttf
 
 # ------------------------------------------------------------------------------

@@ -163,9 +163,9 @@ $fontFamily = 'Arial'; // Default for English
 $cssFontFamily = 'Arial, sans-serif';
 
 if ($locale === 'ja') {
-    // Use Noto Sans JP for Japanese
-    $fontFamily = 'Noto Sans JP';
-    $cssFontFamily = 'Noto Sans JP, sans-serif';
+    // Use IPA Gothic for Japanese (better Dompdf compatibility)
+    $fontFamily = 'ipaexgothic';
+    $cssFontFamily = 'ipaexgothic, sans-serif';
 }
 
 // Build HTML for PDF
@@ -569,7 +569,9 @@ $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
 $options->set('defaultFont', $fontFamily);
-$options->set('fontDir', '/usr/share/fonts/noto-jp');
+if ($locale === 'ja') {
+    $options->set('fontDir', '/usr/share/fonts/ipa');
+}
 $options->set('fontCache', '/opt/app-root/src/vendor/dompdf/dompdf/lib/fonts');
 $options->set('isFontSubsettingEnabled', true);
 
