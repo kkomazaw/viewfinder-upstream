@@ -189,6 +189,9 @@ $html = '<!DOCTYPE html>
     <title>' . htmlspecialchars(__('pdf.title')) . '</title>
     <style>
         ' . $fontFaceRule . '
+        * {
+            font-family: ' . $cssFontFamily . ';
+        }
         body {
             font-family: ' . $cssFontFamily . ';
             color: #333;
@@ -197,6 +200,9 @@ $html = '<!DOCTYPE html>
             padding: 20px;
             font-size: 11pt;
         }
+        h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, strong, em {
+            font-family: ' . $cssFontFamily . ';
+        }
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -204,15 +210,18 @@ $html = '<!DOCTYPE html>
             padding-bottom: 20px;
         }
         .header h1 {
+            font-family: ' . $cssFontFamily . ';
             color: #151515;
             margin: 0 0 10px 0;
             font-size: 24px;
         }
         .header .date {
+            font-family: ' . $cssFontFamily . ';
             color: #666;
             font-size: 11px;
         }
         .score-card {
+            font-family: ' . $cssFontFamily . ';
             background: ' . $maturityColor . ';
             color: white;
             padding: 20px;
@@ -221,6 +230,7 @@ $html = '<!DOCTYPE html>
             margin-bottom: 30px;
         }
         .score-card h2 {
+            font-family: ' . $cssFontFamily . ';
             margin: 0 0 15px 0;
             font-size: 26px;
         }
@@ -243,6 +253,7 @@ $html = '<!DOCTYPE html>
             page-break-inside: avoid;
         }
         .section h3 {
+            font-family: ' . $cssFontFamily . ';
             color: ' . $maturityColor . ';
             border-bottom: 2px solid ' . $maturityColor . ';
             padding-bottom: 5px;
@@ -250,11 +261,13 @@ $html = '<!DOCTYPE html>
             font-size: 16px;
         }
         table {
+            font-family: ' . $cssFontFamily . ';
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
         }
         table th {
+            font-family: ' . $cssFontFamily . ';
             background: #f5f5f5;
             padding: 8px;
             text-align: left;
@@ -263,11 +276,13 @@ $html = '<!DOCTYPE html>
             font-size: 10pt;
         }
         table td {
+            font-family: ' . $cssFontFamily . ';
             padding: 8px;
             border: 1px solid #ddd;
             font-size: 10pt;
         }
         .badge {
+            font-family: ' . $cssFontFamily . ';
             display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
@@ -284,18 +299,21 @@ $html = '<!DOCTYPE html>
             margin: 15px 0;
         }
         .unknown-item {
+            font-family: ' . $cssFontFamily . ';
             background: #f9f9f9;
             padding: 10px;
             margin: 10px 0;
             border-left: 4px solid #0066cc;
         }
         .unknown-item strong {
+            font-family: ' . $cssFontFamily . ';
             display: block;
             margin-bottom: 5px;
             color: #0066cc;
             font-size: 11pt;
         }
         .improvement-section {
+            font-family: ' . $cssFontFamily . ';
             background: #f9f9f9;
             padding: 15px;
             border-left: 4px solid ' . $maturityColor . ';
@@ -303,15 +321,18 @@ $html = '<!DOCTYPE html>
             page-break-inside: avoid;
         }
         .improvement-section h4 {
+            font-family: ' . $cssFontFamily . ';
             margin-top: 0;
             color: ' . $maturityColor . ';
             font-size: 14px;
         }
         .improvement-section ul {
+            font-family: ' . $cssFontFamily . ';
             margin: 10px 0;
             padding-left: 20px;
         }
         .improvement-section li {
+            font-family: ' . $cssFontFamily . ';
             margin: 8px 0;
             font-size: 10pt;
         }
