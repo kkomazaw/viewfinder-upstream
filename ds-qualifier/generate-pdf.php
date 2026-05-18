@@ -163,9 +163,9 @@ $fontFamily = 'Arial'; // Default for English
 $cssFontFamily = 'Arial, sans-serif';
 
 if ($locale === 'ja') {
-    // Use IPA Gothic for Japanese (better Dompdf compatibility)
-    $fontFamily = 'ipaexgothic';
-    $cssFontFamily = 'ipaexgothic, sans-serif';
+    // Use IPA Ex Gothic for Japanese (better Dompdf compatibility)
+    $fontFamily = 'ipaexg';
+    $cssFontFamily = 'ipaexg, sans-serif';
 }
 
 // Build HTML for PDF

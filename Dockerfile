@@ -95,10 +95,10 @@ RUN composer install \
         --no-progress \
     && composer clear-cache
 
-# Register IPA Gothic font with Dompdf
-RUN cd vendor/dompdf/dompdf && \
-    php load_font.php ipaexgothic /usr/share/fonts/ipa/ipaexg.ttf && \
-    php load_font.php ipaexmincho /usr/share/fonts/ipa/ipaexm.ttf
+# Copy IPA Gothic font to Dompdf font directory
+RUN cp /usr/share/fonts/ipa/ipaexg.ttf vendor/dompdf/dompdf/lib/fonts/ && \
+    cp /usr/share/fonts/ipa/ipaexm.ttf vendor/dompdf/dompdf/lib/fonts/ && \
+    chown 1001:0 vendor/dompdf/dompdf/lib/fonts/ipaex*.ttf
 
 # ------------------------------------------------------------------------------
 # Application Files
