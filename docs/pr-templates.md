@@ -1,272 +1,301 @@
 # Pull Request Templates
 
-## PR #1: Add Missing Translation Keys for i18n Support
+## PR #1: Implement i18n Infrastructure with English Translations
 
 ### Title
 ```
-feat(i18n): Add translation keys for improvement actions and domain insights
+feat(i18n): Implement internationalization infrastructure with English translations
 ```
 
 ### Description
 
 **What**
-This PR extracts hardcoded English strings into translation keys, making the application properly translatable without changing any English text or behavior.
+This PR implements a complete internationalization (i18n) system for the Viewfinder assessment tool, converting all hardcoded English strings to translation keys while maintaining identical English output.
 
 **Why**
-- Enables future translation to any language
+- Enables future translation to any language (Japanese, Chinese, French, etc.)
+- Improves code maintainability by eliminating hardcoded strings
 - Follows i18n best practices
-- Makes codebase more maintainable
-- Prepares for Japanese language support (PR #2)
+- No breaking changes - all English text preserved exactly
+- Sets foundation for Japanese language support (PR #2)
 
 **Changes**
-- Added 75 new translation keys to `i18n/locales/en.php`
-- Updated `ds-qualifier/generate-pdf.php` to use `__()` function
-- Updated `ds-qualifier/results.php` to use `__()` function
-- All English text remains identical to previous version
 
-**Translation Keys Added**
-- `improvement.*` - 72 keys for improvement actions (5 maturity levels)
-- `results.domain_insights.*` - 3 keys for domain insights section
+**New Files:**
+- `i18n/I18n.php` - Core i18n system with locale detection and translation functions
+- `i18n/locales/en.php` - 330+ English translation keys
+
+**Modified Files:**
+- `index.php` - Use `__()` function for all user-facing text
+- `ds-qualifier/question.php` - Use `__()` function throughout
+- `ds-qualifier/results.php` - Use `__()` function throughout
+- `ds-qualifier/generate-pdf.php` - Use `__()` function throughout
+- `ds-qualifier/config.php` - Question text converted to translation keys
+- `ds-qualifier/profiles.php` - Profile names/descriptions converted to keys
+- All other PHP files with user-facing text
+
+**i18n System Features**
+```php
+// Core functions (i18n/I18n.php)
+function getLocale(): string              // Get current locale (default: 'en')
+function setLocale(string $locale): void  // Set locale in session
+function __(string $key, array $params = [], string $default = ''): string  // Translate
+function __e(string $key, array $params = [], string $default = ''): void   // Translate and echo
+```
+
+**Translation Key Organization**
+- `app.*` - Application-wide strings (title, navigation, buttons)
+- `maturity.*` - Maturity level names and descriptions (5 levels)
+- `improvement.*` - Improvement actions (5 maturity levels × ~12 keys each = 60+ keys)
+- `results.*` - Results page sections, labels, and messages
+- `profile.*` - Profile names and descriptions
+- `question.*` - Question text for all domains
+- `domain.*` - Domain names and descriptions
+- `error.*` - Error messages
+- `pdf.*` - PDF-specific strings
+
+**Example Conversions**
+```php
+// Before (hardcoded)
+<h1>Digital Sovereignty Readiness Assessment</h1>
+<p>Your organization scored <?php echo $score; ?> points</p>
+
+// After (translatable)
+<h1><?php echo __('app.title'); ?></h1>
+<p><?php echo __('results.score_message', ['score' => $score]); ?></p>
+```
 
 **Testing**
-```bash
-# Visual diff test - should show NO differences
-curl http://localhost:8080/ds-qualifier/results.php > before.html
-# Apply PR changes
-curl http://localhost:8080/ds-qualifier/results.php > after.html
-diff before.html after.html
-# Expected: No differences in rendered HTML
 
-# PDF generation test
-# Generate PDF before and after - should be identical
+```bash
+# 1. Verify i18n system loads correctly
+php -r "require 'i18n/I18n.php'; echo getLocale();"
+# Expected: en
+
+# 2. Verify translation function works
+php -r "require 'i18n/I18n.php'; echo __('app.title');"
+# Expected: Digital Sovereignty Readiness Assessment
+
+# 3. Visual regression test - NO differences expected
+# Generate screenshots/PDFs before and after applying PR
+# Compare pixel-by-pixel - should be identical
+
+# 4. Test all pages render correctly
+curl http://localhost:8080/ | grep "Digital Sovereignty"
+curl http://localhost:8080/ds-qualifier/question.php | grep "Domain"
+curl http://localhost:8080/ds-qualifier/results.php | grep "Maturity"
+
+# 5. Test PDF generation unchanged
+curl -X POST http://localhost:8080/ds-qualifier/generate-pdf.php
+# Compare with pre-PR PDF - should be byte-identical
+
+# 6. Test locale parameter (only 'en' available)
+curl 'http://localhost:8080/?lang=en' | grep "Digital Sovereignty"
+# Should work
+
+curl 'http://localhost:8080/?lang=ja' | grep "Digital Sovereignty"
+# Should fall back to English (ja not available yet)
 ```
 
 **Screenshots**
-- Before: [screenshot of English results page]
-- After: [screenshot of English results page - should be identical]
+| Page | Before PR | After PR |
+|------|-----------|----------|
+| Home | [screenshot] | [screenshot - identical] |
+| Assessment | [screenshot] | [screenshot - identical] |
+| Results | [screenshot] | [screenshot - identical] |
+| PDF | [screenshot] | [screenshot - identical] |
 
 **Breaking Changes**
-- None. This is pure refactoring.
+- None. This is a refactoring that maintains 100% backward compatibility.
+- All English text preserved exactly as before
+- No configuration changes required
+- No database migrations needed
+
+**Performance Impact**
+- Negligible: Translation lookup is simple array access
+- PHP opcache will optimize repeated translations
+- No measurable performance difference expected
+
+**Security Considerations**
+- All translated strings still pass through `htmlspecialchars()` for XSS prevention
+- Translation keys are not user-controllable (hardcoded in PHP)
+- No new security vulnerabilities introduced
 
 **Related Issues**
-- Part of Japanese language support initiative (see #XXX)
-- Prepares for PR #2: Japanese translations
+- Part of internationalization initiative (see #XXX)
+- Prepares for PR #2: Japanese language support
+- Improves code maintainability
 
 **Checklist**
+- [ ] i18n core system implemented (`I18n.php`)
 - [ ] All hardcoded strings replaced with `__()` function calls
 - [ ] English translations added to `en.php` match previous text exactly
-- [ ] No visual changes to UI
+- [ ] Locale detection works (URL param, session, browser)
+- [ ] No visual changes to UI (pixel-perfect comparison)
 - [ ] No changes to PDF output
-- [ ] Translation key naming follows existing conventions
+- [ ] Translation key naming follows conventions (hierarchical, descriptive)
+- [ ] All pages tested (home, assessment, results, PDF)
 - [ ] Tested on local environment
-- [ ] Documentation updated (if needed)
+- [ ] README updated with i18n information
+- [ ] Code follows project style guidelines
 
 ---
 
-## PR #2: Add Japanese Language Support (ja.php)
+## PR #2: Add Japanese Language Support with Font Rendering
 
 ### Title
 ```
-feat(i18n): Add Japanese translation file (ja.php)
+feat(i18n): Add Japanese language support with font rendering improvements
 ```
 
 ### Description
 
 **What**
-This PR adds complete Japanese translations for the Viewfinder assessment tool, enabling Japanese language support.
+This PR adds complete Japanese language support to the Viewfinder assessment tool, including:
+1. Japanese translations for all 330+ translation keys
+2. Font metrics extraction for proper Japanese PDF rendering
+3. Locale-specific CSS for CJK text layout
+4. Build process updates for Japanese font support
 
 **Why**
 - Enables organizations in Japan to use the tool in their native language
+- Provides professional-quality Japanese PDF reports
 - Improves user experience for Japanese-speaking stakeholders
 - Demonstrates extensibility of i18n infrastructure
 - Addresses growing demand for digital sovereignty tools in Asia-Pacific
 
 **Changes**
-- Added `i18n/locales/ja.php` with 330+ lines of Japanese translations
-- All 75 translation keys from PR #1 are translated
-- Includes translations for all maturity levels, improvement actions, and UI elements
+
+**New Files:**
+- `i18n/locales/ja.php` - 330+ Japanese translation keys
+- `generate-font-metrics.php` - Font metrics extraction script
+- Font metrics: Generated UFM file for IPA Gothic font (11,691 characters)
+
+**Modified Files:**
+- `ds-qualifier/generate-pdf.php` - Locale-specific CSS and font handling
+- `Dockerfile` - Japanese font installation and metrics generation
 
 **Dependencies**
-- Requires PR #1 to be merged first
-- Font rendering improvements (PR #3) recommended but not required
+- Requires PR #1 (i18n Infrastructure) to be merged first
+- Builds on translation key system from PR #1
 
 **Translation Quality**
 - All translations reviewed by native Japanese speaker
 - Professional terminology verified for technical accuracy
 - HTML entities (`<strong>`, etc.) preserved correctly
-
-**Testing**
-```bash
-# Test Japanese locale
-curl 'http://localhost:8080/?lang=ja' > ja_output.html
-grep "デジタル主権" ja_output.html  # Should find Japanese text
-
-# Test locale switching
-curl 'http://localhost:8080/?lang=en' > en_output.html
-grep "Digital Sovereignty" en_output.html  # Should find English text
-
-# Test all pages in Japanese
-for page in index.php ds-qualifier/question.php ds-qualifier/results.php; do
-  curl "http://localhost:8080/${page}?lang=ja" | grep -q "デジタル主権"
-done
-```
-
-**Screenshots**
-| Page | English | Japanese |
-|------|---------|----------|
-| Home | [screenshot] | [screenshot] |
-| Assessment | [screenshot] | [screenshot] |
-| Results | [screenshot] | [screenshot] |
-| PDF | [screenshot] | [screenshot] |
+- Natural Japanese phrasing (not literal/machine translation)
 
 **Sample Translations**
 
 | Key | English | Japanese |
 |-----|---------|----------|
+| `app.title` | Digital Sovereignty Readiness Assessment | デジタル主権準備状況評価 |
 | `improvement.initial.title` | Critical Actions for Initial Level | 初期レベルの重要なアクション |
 | `results.domain_insights.requirements_identified` | Requirements Identified: | 特定された要件： |
 | `maturity.initial` | Initial | 初期 |
+| `maturity.optimizing` | Optimizing | 最適化 |
 
-**Known Issues**
-- Japanese text in PDFs may have minor layout issues (addressed in PR #3)
-- Some line breaks may not be optimal for Japanese (addressed in PR #3)
+**Font Rendering Improvements**
 
-**Breaking Changes**
-- None. English locale remains default and unchanged.
-
-**Related Issues**
-- Builds on PR #1: Translation keys
-- Prepares for PR #3: Font rendering improvements
-- Addresses issue #XXX (if applicable)
-
-**Checklist**
-- [ ] All translation keys from PR #1 are translated
-- [ ] HTML entities preserved in translations
-- [ ] Translations reviewed by native speaker
-- [ ] Technical terminology verified for accuracy
-- [ ] Locale switching works correctly
-- [ ] All pages display properly in Japanese
-- [ ] No layout breaking with Japanese text
-- [ ] Tested on local environment
-- [ ] README updated with language information
-
----
-
-## PR #3: Fix Japanese Font Rendering in PDFs
-
-### Title
+**Problem Without Font Metrics:**
 ```
-fix(pdf): Add font metrics extraction for proper Japanese text rendering
+❌ Text overflows page margins
+❌ Characters overlap each other
+❌ Line breaks mid-character: "日本|語" instead of "日本語"
+❌ Missing glyphs (boxes instead of characters)
 ```
 
-### Description
+**Solution:**
 
-**What**
-This PR fixes critical Japanese font rendering issues in PDF generation by extracting proper font metrics and implementing locale-specific layout improvements.
+1. **Font Metrics Extraction** (`generate-font-metrics.php`)
+   ```php
+   // Extract character widths from IPA Gothic TrueType font
+   // Maps 11,691 Unicode characters to advance widths
+   // Generates Adobe Font Metrics (AFM) format
+   // Runs during Docker build (one-time operation)
+   ```
 
-**Why**
-Without this fix, Japanese PDFs have serious problems:
-- ❌ Text overflows page margins
-- ❌ Characters overlap each other
-- ❌ Line breaks occur mid-character
-- ❌ Missing glyphs (boxes instead of characters)
+2. **Locale-Specific CSS**
+   ```php
+   // Japanese locale
+   word-break: break-all;       // CJK standard line breaking
+   overflow-wrap: anywhere;     // Prevent overflow
+   font-family: ipaexg;         // IPA Gothic font
 
-This PR enables professional-quality Japanese PDF reports.
+   // English locale (unchanged)
+   word-break: normal;          // Word boundaries
+   overflow-wrap: auto;
+   font-family: Arial;
+   ```
 
-**Changes**
+3. **Build Process** (Dockerfile)
+   ```dockerfile
+   # Install Japanese fonts
+   RUN apt-get install -y fonts-ipaexfont-gothic
 
-**1. Font Metrics Extraction**
-- Added `generate-font-metrics.php` script
-- Extracts 11,691 character widths from IPA Gothic TrueType font
-- Generates Adobe Font Metrics (AFM) file at build time
-- Maps Unicode code points to advance widths for accurate layout
-
-**2. Locale-Specific CSS**
-- Japanese: `word-break: break-all` (CJK standard line breaking)
-- Japanese: `overflow-wrap: anywhere` (prevent overflow)
-- English: maintains existing behavior
-
-**3. PDF Layout Improvements**
-- Changed table layout from `fixed` to `auto` for flexible columns
-- Reduced font sizes for better fit (e.g., title: 24px → 20px)
-- Added `box-sizing: border-box` to prevent overflow
-- Increased padding for Japanese readability
-
-**4. Build Process**
-- Modified Dockerfile to run font metrics generation during build
-- One-time operation, no runtime performance impact
-
-**Technical Details**
-
-Font metrics extraction process:
-```php
-// 1. Load TrueType font (IPA Gothic, 2048 units/em)
-$font = Font::load('ipaexg.ttf');
-
-// 2. Get Unicode character map (11,691 characters)
-$charMap = $font->getUnicodeCharMap();
-
-// 3. Extract advance width for each character
-foreach ($charMap as $unicode => $gid) {
-    $advanceWidth = $hmtx[$gid][0];
-    $scaledWidth = round(($advanceWidth / 2048) * 1000);
-    $glyphWidths[$unicode] = $scaledWidth;
-}
-
-// 4. Generate AFM file (605KB)
-// Format: C {unicode} ; WX {width} ; N uni{hex} ; B 0 -200 {width} 800 ;
-```
-
-**Dependencies**
-- Requires PR #1 and PR #2 for full Japanese support
-- Works standalone but benefits from Japanese translations
+   # Generate font metrics during build
+   RUN php generate-font-metrics.php
+   ```
 
 **Testing**
 
-**Build Test:**
 ```bash
-# Verify font metrics generation
-podman build -t viewfinder-test .
-podman run --rm viewfinder-test cat vendor/dompdf/dompdf/lib/fonts/ipaexg.ufm | wc -l
+# 1. Test Japanese translations
+curl 'http://localhost:8080/?lang=ja' | grep "デジタル主権"
+# Expected: Find Japanese text
+
+# 2. Test locale switching
+curl 'http://localhost:8080/?lang=en' | grep "Digital Sovereignty"
+curl 'http://localhost:8080/?lang=ja' | grep "デジタル主権"
+# Both should work
+
+# 3. Test all pages in Japanese
+for page in index.php ds-qualifier/question.php ds-qualifier/results.php; do
+  curl "http://localhost:8080/${page}?lang=ja" | grep -q "デジタル主権"
+  echo "$page: OK"
+done
+
+# 4. Verify font metrics generation
+podman build -t viewfinder-ja .
+podman run --rm viewfinder-ja cat vendor/dompdf/dompdf/lib/fonts/ipaexg.ufm | wc -l
 # Expected: 11,712 lines (11,691 chars + 21 header lines)
 
-# Verify file size
-podman run --rm viewfinder-test ls -lh vendor/dompdf/dompdf/lib/fonts/ipaexg.ufm
-# Expected: ~605K
+podman run --rm viewfinder-ja ls -lh vendor/dompdf/dompdf/lib/fonts/ipaexg.ufm
+# Expected: ~605KB
+
+# 5. Japanese PDF Visual Test (manual)
+# - Set locale to Japanese (?lang=ja)
+# - Complete assessment
+# - Generate PDF
+# - Verify:
+#   ✓ No text overflow beyond margins
+#   ✓ Characters don't overlap
+#   ✓ Line breaks at proper character boundaries
+#   ✓ All kanji/kana display correctly (no boxes)
+#   ✓ Tables render properly with Japanese text
+
+# 6. English PDF Regression Test
+# - Generate English PDF (?lang=en)
+# - Compare with pre-PR PDF
+# - Should be identical (no changes to English)
+
+# 7. Build Performance Test
+time podman build -t viewfinder-ja .
+# Font metrics generation adds ~2-3 seconds to build
 ```
 
-**Visual Test:**
-```bash
-# 1. Set locale to Japanese
-# 2. Complete assessment
-# 3. Generate PDF
-# 4. Verify:
-#    - No text overflow beyond margins
-#    - Characters don't overlap
-#    - Line breaks occur at proper boundaries
-#    - All characters display correctly (no boxes)
-```
+**Screenshots**
+| Page | English | Japanese |
+|------|---------|----------|
+| Home | [screenshot] | [screenshot with Japanese text] |
+| Assessment | [screenshot] | [screenshot with Japanese questions] |
+| Results | [screenshot] | [screenshot with Japanese results] |
+| PDF (Before) | [screenshot] | [screenshot showing overflow/issues] |
+| PDF (After) | [screenshot - unchanged] | [screenshot showing proper rendering] |
 
-**Regression Test:**
-```bash
-# Generate English PDF - should be unchanged
-# Compare before/after PDF files
-```
+**Before/After PDF Comparison**
 
-**Performance Test:**
-```bash
-# Font metrics generation (during build)
-time php generate-font-metrics.php
-# Expected: ~2-3 seconds
-
-# PDF generation (runtime - should be unaffected)
-time curl -X POST http://localhost:8080/ds-qualifier/generate-pdf.php
-# Expected: No significant change from before
-```
-
-**Before/After Comparison**
-
-**Before:**
+**Before (broken Japanese PDF):**
 ```
 日本語のテキストが正しく表示されません。文字が重なったり、ペ
 ージの外にはみ出したりします。また、不適切な位置で改行が発生
@@ -274,75 +303,61 @@ time curl -X POST http://localhost:8080/ds-qualifier/generate-pdf.php
 ```
 (Text overflow, poor line breaking, character overlap)
 
-**After:**
+**After (fixed Japanese PDF):**
 ```
 日本語のテキストが正しく表示されます。文字が適切に配置され、
 ページ内に収まります。改行も適切な位置で発生します。
 ```
 (Proper rendering, correct line breaking, no overflow)
 
-**Screenshots**
-| Section | Before (Broken) | After (Fixed) |
-|---------|----------------|---------------|
-| Score Card | [screenshot showing overflow] | [screenshot showing proper layout] |
-| Improvement Actions | [screenshot showing character overlap] | [screenshot showing correct spacing] |
-| Domain Insights | [screenshot showing poor line breaks] | [screenshot showing proper breaks] |
-
 **Breaking Changes**
-- None. English PDF generation unchanged.
-- Japanese PDFs improve significantly.
+- None. English locale remains default and unchanged.
+- Japanese PDFs improve significantly (previously broken, now functional).
 
 **Performance Impact**
-- Build time: +2-3 seconds (one-time, during Docker build)
-- Runtime: No impact
-- UFM file size: 605KB (loaded once by Dompdf)
-- Memory: Negligible (~50KB additional)
+- **Build time:** +2-3 seconds (one-time font metrics generation)
+- **Runtime:** No impact (UFM file loaded once by Dompdf)
+- **Memory:** Negligible (~50KB for UFM file)
+- **Disk:** +605KB for UFM file
 
 **Security Considerations**
-- Font files installed during build (not user-uploadable)
-- No user input in font metrics generation
+- Font files installed during build from official Debian packages
+- Not user-uploadable or user-modifiable
+- Font metrics generation has no user input
 - AFM file is static, generated at build time
 - No runtime security implications
 
 **Related Issues**
-- Completes Japanese language support (PR #1, PR #2)
-- Fixes issue #XXX: Japanese PDF rendering
+- Builds on PR #1: i18n Infrastructure
+- Completes Japanese language support
 - May help with future CJK language support (Chinese, Korean)
+- Addresses issue #XXX (if applicable)
 
 **Files Changed**
 ```
-A  generate-font-metrics.php          (new file, 153 lines)
-M  ds-qualifier/generate-pdf.php      (+201, -163)
-M  Dockerfile                         (+3, -1)
+A  i18n/locales/ja.php              (new file, 330+ lines)
+A  generate-font-metrics.php        (new file, 153 lines)
+M  ds-qualifier/generate-pdf.php    (+201, -163)
+M  Dockerfile                       (+3, -1)
 ```
 
 **Checklist**
-- [ ] Font metrics file generates successfully
-- [ ] 11,691 characters extracted correctly
+- [ ] All 330+ translation keys translated to Japanese
+- [ ] HTML entities preserved in translations
+- [ ] Translations reviewed by native Japanese speaker
+- [ ] Technical terminology verified for accuracy
+- [ ] Font metrics script generates UFM file correctly
+- [ ] 11,691 Japanese characters have correct metrics
+- [ ] Locale switching works correctly
+- [ ] All pages display properly in Japanese
 - [ ] Japanese PDFs render without overflow
-- [ ] English PDFs unchanged
+- [ ] English PDFs unchanged (regression test)
 - [ ] Build completes without errors
-- [ ] All tests pass
 - [ ] Performance impact acceptable
-- [ ] Documentation updated
-- [ ] Sample PDFs attached (Japanese and English)
-
-**Migration Guide**
-
-For existing deployments:
-```bash
-# 1. Pull latest code
-git pull origin main
-
-# 2. Rebuild container (generates font metrics)
-podman build -t viewfinder:latest .
-
-# 3. Deploy
-podman run -d -p 8080:8080 viewfinder:latest
-
-# No configuration changes needed
-# No data migration required
-```
+- [ ] Sample PDFs attached (both Japanese and English)
+- [ ] Tested on local environment
+- [ ] README updated with Japanese language information
+- [ ] Code follows project style guidelines
 
 ---
 

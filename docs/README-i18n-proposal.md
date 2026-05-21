@@ -1,6 +1,6 @@
 # Internationalization Proposal Documentation
 
-This directory contains the complete documentation for proposing Japanese language support to upstream maintainers.
+This directory contains the complete documentation for proposing internationalization (i18n) infrastructure and Japanese language support to upstream maintainers.
 
 ## 📄 Documents
 
@@ -44,7 +44,7 @@ Use this to:
 **What it includes:**
 - High-level summary
 - Motivation and benefits
-- Overview of 3-PR plan
+- Overview of 2-stage PR plan
 - Questions for maintainers
 - Sample screenshots
 - Timeline estimate
@@ -62,9 +62,8 @@ Use this when:
 - Want comprehensive checklists
 
 **Contents:**
-- Template for PR #1 (Translation Keys)
-- Template for PR #2 (Japanese Translations)
-- Template for PR #3 (Font Rendering)
+- Template for PR #1 (i18n Infrastructure + English)
+- Template for PR #2 (Japanese Language + Font Rendering)
 - Commit message format guidelines
 - Review process guidelines
 - Testing checklists
@@ -87,181 +86,171 @@ Use this when:
    ```bash
    # Copy content from github-issue-template.md
    # Create issue on GitHub
-   # Title: "[PROPOSAL] Add Japanese Language Support with Font Rendering Improvements"
+   # Title: "[PROPOSAL] Add Internationalization Support and Japanese Language"
    ```
 
 2. **Get Feedback**
    - Tag maintainers for feedback
-   - Answer questions
+   - Answer questions about i18n system design
+   - Discuss PR sequencing (2-PR approach)
    - Adjust approach based on comments
    - Get approval to proceed with PRs
 
 3. **Expected Outcome**
-   - ✅ Maintainers approve 3-PR approach
+   - ✅ Maintainers approve 2-stage approach
+   - ✅ i18n system design approved
    - ✅ Any concerns addressed
    - ✅ Green light to start PR #1
 
 ---
 
-### Step 2: PR #1 - Translation Keys (Week 1)
+### Step 2: PR #1 - i18n Infrastructure + English (Week 1-3)
 
 1. **Create Feature Branch**
    ```bash
-   git checkout -b feat/i18n-translation-keys
+   git checkout -b feat/i18n-infrastructure
    ```
 
-2. **Cherry-pick Relevant Changes**
+2. **Prepare Changes**
    ```bash
-   # Extract only translation key changes from current commit
-   git show 90fc170 -- i18n/locales/en.php > /tmp/en.patch
-   git show 90fc170 -- ds-qualifier/generate-pdf.php > /tmp/pdf.patch
-   git show 90fc170 -- ds-qualifier/results.php > /tmp/results.patch
+   # Add i18n core system
+   git add i18n/I18n.php
+   git add i18n/locales/en.php
 
-   # Review and apply only translation key additions
+   # Update all PHP files to use __() function
+   git add index.php
+   git add ds-qualifier/question.php
+   git add ds-qualifier/results.php
+   git add ds-qualifier/generate-pdf.php
+   # ... and all other files with hardcoded text
+
+   git commit -m "feat(i18n): Implement internationalization infrastructure with English translations"
    ```
 
 3. **Create PR**
    - Use template from `pr-templates.md` (PR #1 section)
    - Include before/after screenshots (should be identical)
-   - Add test results
-   - Reference design doc for details
+   - Demonstrate locale detection working
+   - Add comprehensive test results
+   - Reference design doc for technical details
 
 4. **Expected Timeline**
    - Create PR: Day 1
-   - Review cycles: 3-5 days
-   - Merge: End of Week 1
+   - Review cycles: 1-2 weeks (larger PR, architectural changes)
+   - Address feedback and iterate
+   - Merge: End of Week 2-3
 
 ---
 
-### Step 3: PR #2 - Japanese Translations (Week 2)
+### Step 3: PR #2 - Japanese Language + Font Rendering (Week 4-6)
 
 1. **Wait for PR #1 Merge**
-   - Don't start until PR #1 is merged
+   - Don't start until PR #1 is merged and deployed
+   - Verify i18n infrastructure works in production
    - Base branch on merged PR #1
 
 2. **Create Feature Branch**
    ```bash
    git checkout main
    git pull
-   git checkout -b feat/i18n-japanese-translations
+   git checkout -b feat/japanese-language-support
    ```
 
-3. **Add Japanese File Only**
+3. **Prepare All Japanese Changes**
    ```bash
-   # Copy ja.php from current implementation
-   cp i18n/locales/ja.php /tmp/ja.php
-
-   # Create clean commit with only ja.php
+   # Add Japanese translations
    git add i18n/locales/ja.php
-   git commit -m "feat(i18n): Add Japanese translation file (ja.php)"
+
+   # Add font metrics extraction script
+   git add generate-font-metrics.php
+
+   # Update PDF generation for locale-specific CSS
+   git add ds-qualifier/generate-pdf.php
+
+   # Update Dockerfile for font installation
+   git add Dockerfile
+
+   git commit -m "feat(i18n): Add Japanese language support with font rendering improvements"
    ```
 
 4. **Create PR**
    - Use template from `pr-templates.md` (PR #2 section)
-   - Include Japanese screenshots
+   - Include Japanese screenshots (all pages)
+   - Include before/after PDF comparisons
+   - Attach sample Japanese and English PDFs
+   - Document font metrics generation process
+   - Show build performance impact
    - Demonstrate locale switching
-   - Note: May need native speaker review
 
 5. **Expected Timeline**
    - Create PR: Day 1
-   - Review cycles: 3-5 days (may need translation review)
-   - Merge: End of Week 2
-
----
-
-### Step 4: PR #3 - Font Rendering (Week 3-4)
-
-1. **Wait for PR #2 Merge**
-   - Ensure Japanese translations are in place
-   - Base branch on merged PR #2
-
-2. **Create Feature Branch**
-   ```bash
-   git checkout main
-   git pull
-   git checkout -b fix/japanese-pdf-font-rendering
-   ```
-
-3. **Add Font-Related Changes**
-   ```bash
-   # Add generate-font-metrics.php
-   git add generate-font-metrics.php
-
-   # Add PDF generation improvements
-   git add ds-qualifier/generate-pdf.php
-
-   # Add Dockerfile changes
-   git add Dockerfile
-
-   git commit -m "fix(pdf): Add font metrics extraction for Japanese text rendering"
-   ```
-
-4. **Create PR**
-   - Use template from `pr-templates.md` (PR #3 section)
-   - Include before/after PDF screenshots
-   - Attach sample PDF files
-   - Document performance impact
-   - Explain font metrics extraction
-
-5. **Expected Timeline**
-   - Create PR: Day 1
-   - Review cycles: 5-10 days (more complex, technical)
-   - Merge: End of Week 3-4
+   - Review cycles: 1-2 weeks (translations + technical review)
+   - May need native Japanese speaker review
+   - Address feedback and iterate
+   - Merge: End of Week 5-6
 
 ---
 
 ## 📋 Checklist for Each Phase
 
 ### Before Creating Issue
-- [ ] Read all three documents
-- [ ] Understand the full scope
+- [ ] Read all documentation files
+- [ ] Understand the full scope (i18n infrastructure + Japanese)
 - [ ] Prepare answers to likely questions
-- [ ] Have screenshots ready
+- [ ] Have screenshots ready showing current hardcoded text
 - [ ] Review similar i18n PRs in other projects
 
-### Before Creating PR #1
+### Before Creating PR #1 (i18n Infrastructure)
 - [ ] Issue approved by maintainers
+- [ ] i18n system design approved
 - [ ] Create clean branch from main
-- [ ] Test English output is identical
-- [ ] Prepare before/after screenshots
+- [ ] All hardcoded strings converted to translation keys
+- [ ] English translations match original text exactly
+- [ ] Test English output is pixel-perfect identical
+- [ ] Locale detection works (URL param, session, browser)
+- [ ] Prepare before/after screenshots (should be identical)
 - [ ] Run all tests
+- [ ] README updated with i18n usage info
 
-### Before Creating PR #2
-- [ ] PR #1 merged
-- [ ] Translations reviewed by native speaker
+### Before Creating PR #2 (Japanese Language)
+- [ ] PR #1 merged and deployed
+- [ ] i18n infrastructure verified working
+- [ ] All 330+ translation keys translated to Japanese
+- [ ] Translations reviewed by native Japanese speaker
+- [ ] Technical terminology verified for accuracy
+- [ ] Font metrics generation script tested
+- [ ] Japanese PDFs tested (no overflow, proper line breaks)
+- [ ] English PDFs regression tested (unchanged)
 - [ ] All pages tested in Japanese
-- [ ] Locale switching tested
-- [ ] Screenshots prepared
-
-### Before Creating PR #3
-- [ ] PR #2 merged
-- [ ] Font metrics generation tested
-- [ ] Japanese PDFs tested (no overflow)
-- [ ] English PDFs tested (unchanged)
-- [ ] Sample PDFs attached
-- [ ] Performance benchmarks run
+- [ ] Locale switching tested (en ↔ ja)
+- [ ] Build performance impact measured
+- [ ] Sample PDFs prepared (both Japanese and English)
+- [ ] Before/after PDF comparison screenshots prepared
 
 ---
 
 ## 🎯 Success Criteria
 
-### PR #1 Success
-- ✅ All English text uses translation keys
-- ✅ Zero visual changes
+### PR #1 Success (i18n Infrastructure)
+- ✅ i18n core system implemented and working
+- ✅ All English text converted to translation keys
+- ✅ Zero visual changes (pixel-perfect comparison)
+- ✅ Locale detection works correctly
 - ✅ No breaking changes
+- ✅ No performance degradation
 - ✅ Maintainer approval
 
-### PR #2 Success
+### PR #2 Success (Japanese Language)
 - ✅ Japanese locale fully functional
-- ✅ All UI text translated
-- ✅ English locale unaffected
+- ✅ All 330+ translation keys translated
+- ✅ All UI text displays in Japanese correctly
+- ✅ Japanese PDFs render perfectly (no overflow, proper line breaks)
+- ✅ English locale completely unaffected
+- ✅ Locale switching works seamlessly
+- ✅ Font metrics generation works in build
+- ✅ Build time impact acceptable (~2-3 seconds)
 - ✅ Native speaker approved (if possible)
-
-### PR #3 Success
-- ✅ Japanese PDFs render perfectly
-- ✅ No text overflow or character issues
-- ✅ English PDFs unchanged
-- ✅ Build process stable
+- ✅ Maintainer approval
 
 ---
 
@@ -304,20 +293,36 @@ Use this when:
 
 ## ❓ FAQ
 
-**Q: Why split into 3 PRs instead of 1 large PR?**
-A: Easier review, clear separation of concerns, allows partial adoption if needed.
+**Q: Why split into 2 PRs instead of 1 large PR?**
+A: Easier review, clear separation of concerns. PR #1 (i18n infrastructure) is architectural and can be reviewed separately from PR #2 (language-specific content). This also allows partial adoption if needed.
+
+**Q: Why not split PR #2 into separate PRs for translations and font rendering?**
+A: Font rendering is specifically needed for Japanese text. Without the font metrics, Japanese PDFs are broken. It makes sense to deliver a complete, working Japanese language experience in one PR rather than delivering a partially-broken feature.
 
 **Q: What if maintainers want a different PR structure?**
-A: Be flexible! These are templates. Adjust based on feedback.
+A: Be flexible! These are templates. We can adjust based on feedback. Options include:
+- Combine into 1 large PR if maintainers prefer
+- Keep as 2 PRs but adjust scope
+- Split PR #2 if maintainers want translations separate from font work
 
-**Q: What if PR #1 or #2 is rejected?**
-A: Each PR provides value independently. PR #1 improves code quality regardless of language support.
+**Q: What if PR #1 is rejected?**
+A: PR #1 provides value independently - it improves code maintainability by eliminating hardcoded strings, even if no additional languages are ever added. But we should work with maintainers to address concerns.
+
+**Q: What if maintainers don't want Japanese language support?**
+A: The i18n infrastructure (PR #1) is still valuable. It makes the codebase more maintainable and enables any future translations. We can hold PR #2 until there's demand.
 
 **Q: How long will the full process take?**
-A: Realistically 4-6 weeks if all goes smoothly. Be prepared for longer if extensive review is needed.
+A: Realistically 5-6 weeks if all goes smoothly:
+- Week 0: Proposal discussion
+- Week 1-3: PR #1 review and merge
+- Week 4-6: PR #2 review and merge
+Be prepared for longer if extensive review is needed or if maintainers request changes.
 
-**Q: Can we skip PR #3 if only web UI matters?**
-A: Yes, but Japanese PDFs will have rendering issues. Recommend including it for complete solution.
+**Q: Does the upstream currently have i18n support?**
+A: No, the upstream does not have i18n infrastructure yet. PR #1 implements it from scratch. This is why PR #1 is larger - it includes the complete i18n system plus English translations.
+
+**Q: Why not use an existing i18n library like gettext?**
+A: The proposed solution is simple, lightweight, and PHP-native (no extensions required). However, if maintainers prefer gettext or another library, we can adapt the approach.
 
 ---
 
