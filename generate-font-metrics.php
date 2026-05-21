@@ -20,17 +20,19 @@ if (!file_exists($fontPath)) {
 
 echo "Generating font metrics for {$fontFile}...\n";
 
-// Create options
+// Create Dompdf instance
+use Dompdf\Dompdf;
+
 $options = new Options();
 $options->set('fontDir', $fontDir);
 $options->set('fontCache', $fontDir);
 $options->set('isRemoteEnabled', false);
 
-// Create FontMetrics instance
-$fontMetrics = new FontMetrics($options);
+$dompdf = new Dompdf($options);
 
-// Get font info to trigger metrics generation
+// Get FontMetrics instance from Dompdf
 try {
+    $fontMetrics = $dompdf->getFontMetrics();
     $font = $fontMetrics->getFont('ipaexg', 'normal');
     echo "Font metrics generated successfully!\n";
     echo "Font: {$font}\n";
