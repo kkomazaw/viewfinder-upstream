@@ -1,12 +1,11 @@
 <?php
 /**
- * Generate font metrics for IPA Gothic font using Font_Metrics utility
+ * Generate font metrics for IPA Gothic font in AFM format
  * This script must be run during Docker build
  */
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Dompdf\FontMetrics;
 use FontLib\Font;
 
 $fontDir = __DIR__ . '/vendor/dompdf/dompdf/lib/fonts/';
@@ -34,39 +33,38 @@ try {
     echo "Full Name: {$fontFullName}\n";
     echo "Subfamily: {$fontSubfamily}\n";
 
-    // Generate UFM file manually with simplified data
+    // Generate UFM file in AFM format
     $ufmFile = $fontDir . 'ipaexg.ufm';
-    $data = [
-        'codeToName' => [],
-        'isUnicode' => true,
-        'FontName' => $fontName,
-        'FullName' => $fontFullName,
-        'FamilyName' => $fontName,
-        'Weight' => 'Normal',
-        'ItalicAngle' => 0,
-        'IsFixedPitch' => false,
-        'CharacterSet' => 'Unicode',
-        'FontBBox' => [0, -200, 1000, 800],
-        'UnderlinePosition' => -100,
-        'UnderlineThickness' => 50,
-        'Version' => '1.0',
-        'EncodingScheme' => 'FontSpecific',
-        'CapHeight' => 800,
-        'XHeight' => 600,
-        'Ascender' => 1000,
-        'Descender' => -200,
-        'StdHW' => 50,
-        'StdVW' => 50,
-        'StartCharMetrics' => 0,
-        'C' => [], // Character metrics
-        'MissingWidth' => 500,
-    ];
+
+    // Create AFM format content
+    $afm = "StartFontMetrics 4.1\n";
+    $afm .= "Notice Converted by PHP-font-lib\n";
+    $afm .= "Comment https://github.com/PhenX/php-font-lib\n";
+    $afm .= "EncodingScheme FontSpecific\n";
+    $afm .= "FontName {$fontName}\n";
+    $afm .= "FontSubfamily {$fontSubfamily}\n";
+    $afm .= "UniqueID {$fontName}\n";
+    $afm .= "FullName {$fontFullName}\n";
+    $afm .= "Version 1.0\n";
+    $afm .= "Weight Medium\n";
+    $afm .= "ItalicAngle 0\n";
+    $afm .= "IsFixedPitch false\n";
+    $afm .= "UnderlineThickness 50\n";
+    $afm .= "UnderlinePosition -100\n";
+    $afm .= "FontHeightOffset 0\n";
+    $afm .= "Ascender 1000\n";
+    $afm .= "Descender -200\n";
+    $afm .= "FontBBox 0 -200 1000 800\n";
+    $afm .= "StartCharMetrics 1\n";
+    $afm .= "C 32 ; WX 500 ; N space ; B 0 0 0 0 ;\n";
+    $afm .= "EndCharMetrics\n";
+    $afm .= "EndFontMetrics\n";
 
     // Write UFM file
-    file_put_contents($ufmFile, serialize($data));
+    file_put_contents($ufmFile, $afm);
 
     if (file_exists($ufmFile)) {
-        echo "UFM file created successfully: " . basename($ufmFile) . "\n";
+        echo "UFM file created successfully: " . basename($ufmFile) . " (" . filesize($ufmFile) . " bytes)\n";
     } else {
         throw new Exception("Failed to create UFM file");
     }
