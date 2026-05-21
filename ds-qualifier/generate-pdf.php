@@ -194,11 +194,25 @@ $html = '<!DOCTYPE html>
             font-family: ' . $cssFontFamily . ';
             word-wrap: break-word;
             overflow-wrap: break-word;
+            max-width: 100%;
         }
-        p, li, td, th, div {
+        p {
+            margin: 8px 0;
+            line-height: 1.6;
             word-break: normal;
             white-space: normal;
             overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        li, td, th, div {
+            word-break: normal;
+            white-space: normal;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        strong {
+            font-weight: bold;
+            display: inline;
         }
         .header {
             text-align: center;
@@ -210,12 +224,15 @@ $html = '<!DOCTYPE html>
             font-family: ' . $cssFontFamily . ';
             color: #151515;
             margin: 0 0 10px 0;
-            font-size: 24px;
+            font-size: 22px;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
         .header .date {
             font-family: ' . $cssFontFamily . ';
             color: #666;
-            font-size: 11px;
+            font-size: 10px;
+            line-height: 1.4;
         }
         .score-card {
             font-family: ' . $cssFontFamily . ';
@@ -225,11 +242,14 @@ $html = '<!DOCTYPE html>
             border-radius: 8px;
             text-align: center;
             margin-bottom: 30px;
+            overflow: hidden;
         }
         .score-card h2 {
             font-family: ' . $cssFontFamily . ';
             margin: 0 0 15px 0;
-            font-size: 26px;
+            font-size: 24px;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
         .score-circle {
             font-size: 42px;
@@ -242,8 +262,12 @@ $html = '<!DOCTYPE html>
         }
         .recommendation {
             margin: 15px 0;
-            font-size: 13px;
-            line-height: 1.8;
+            font-size: 11px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            padding: 0 5px;
         }
         .section {
             margin-bottom: 25px;
@@ -255,14 +279,17 @@ $html = '<!DOCTYPE html>
             border-bottom: 2px solid ' . $maturityColor . ';
             padding-bottom: 5px;
             margin-bottom: 15px;
-            font-size: 16px;
+            font-size: 15px;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         table {
             font-family: ' . $cssFontFamily . ';
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
-            table-layout: auto;
+            table-layout: fixed;
         }
         table th {
             font-family: ' . $cssFontFamily . ';
@@ -271,17 +298,19 @@ $html = '<!DOCTYPE html>
             text-align: left;
             border: 1px solid #ddd;
             font-weight: bold;
-            font-size: 10pt;
+            font-size: 9pt;
             vertical-align: top;
-            line-height: 1.4;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
         table td {
             font-family: ' . $cssFontFamily . ';
             padding: 10px 8px;
             border: 1px solid #ddd;
-            font-size: 10pt;
+            font-size: 9pt;
             vertical-align: top;
-            line-height: 1.4;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
         .badge {
             font-family: ' . $cssFontFamily . ';
@@ -306,54 +335,77 @@ $html = '<!DOCTYPE html>
             padding: 10px;
             margin: 10px 0;
             border-left: 4px solid #0066cc;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         .unknown-item strong {
             font-family: ' . $cssFontFamily . ';
             display: block;
             margin-bottom: 5px;
             color: #0066cc;
-            font-size: 11pt;
+            font-size: 10pt;
+            line-height: 1.4;
+            word-wrap: break-word;
         }
         .improvement-section {
             font-family: ' . $cssFontFamily . ';
             background: #f9f9f9;
-            padding: 15px;
+            padding: 12px;
             border-left: 4px solid ' . $maturityColor . ';
             margin: 20px 0;
             page-break-inside: avoid;
+            overflow: hidden;
+            max-width: 100%;
         }
         .improvement-section h4 {
             font-family: ' . $cssFontFamily . ';
             margin-top: 0;
+            margin-bottom: 10px;
             color: ' . $maturityColor . ';
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .improvement-section p {
+            margin: 8px 0;
+            font-size: 10pt;
+            line-height: 1.6;
         }
         .improvement-section ul {
             font-family: ' . $cssFontFamily . ';
             margin: 10px 0;
-            padding-left: 20px;
+            padding-left: 18px;
+            padding-right: 5px;
             line-height: 1.6;
+            max-width: 100%;
         }
         .improvement-section li {
             font-family: ' . $cssFontFamily . ';
-            margin: 10px 0;
-            font-size: 10pt;
-            line-height: 1.6;
+            margin: 8px 0;
+            font-size: 9pt;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
         ul, ol {
-            line-height: 1.6;
+            line-height: 1.5;
+            margin: 10px 0;
+            padding-left: 18px;
+            padding-right: 5px;
+            max-width: 100%;
         }
         li {
-            margin: 8px 0;
-            line-height: 1.6;
+            margin: 6px 0;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .footer {
             text-align: center;
             margin-top: 30px;
             padding-top: 15px;
             border-top: 1px solid #ddd;
-            font-size: 9pt;
+            font-size: 8pt;
             color: #666;
+            line-height: 1.4;
         }
     </style>
 </head>
