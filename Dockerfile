@@ -103,6 +103,16 @@ RUN cp /usr/share/fonts/ipa/ipaexg.ttf vendor/dompdf/dompdf/lib/fonts/ && \
     php -r '$fonts = json_decode(file_get_contents("vendor/dompdf/dompdf/lib/fonts/installed-fonts.json"), true); \
             $fonts["ipaexg"] = ["normal" => "ipaexg", "bold" => "ipaexg", "italic" => "ipaexg", "bold_italic" => "ipaexg"]; \
             file_put_contents("vendor/dompdf/dompdf/lib/fonts/installed-fonts.json", json_encode($fonts, JSON_PRETTY_PRINT));' && \
+    # Generate font metrics for ipaexg
+    php -r 'require_once "vendor/autoload.php"; \
+            use Dompdf\Dompdf; \
+            use Dompdf\Options; \
+            $options = new Options(); \
+            $options->set("fontDir", "vendor/dompdf/dompdf/lib/fonts/"); \
+            $options->set("fontCache", "vendor/dompdf/dompdf/lib/fonts/"); \
+            $dompdf = new Dompdf($options); \
+            $fontMetrics = $dompdf->getFontMetrics(); \
+            $fontMetrics->getFont("ipaexg", "normal");' && \
     chown 1001:0 vendor/dompdf/dompdf/lib/fonts/ipaex* && \
     chown 1001:0 vendor/dompdf/dompdf/lib/fonts/installed-fonts.json && \
     chown -R 1001:0 vendor/dompdf/dompdf/lib/fonts/ && \
