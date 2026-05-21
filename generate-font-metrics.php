@@ -34,19 +34,19 @@ try {
     echo "Full Name: {$fontFullName}\n";
     echo "Subfamily: {$fontSubfamily}\n";
 
-    // Generate UFM file manually
+    // Generate UFM file manually with simplified data
     $ufmFile = $fontDir . 'ipaexg.ufm';
     $data = [
         'codeToName' => [],
         'isUnicode' => true,
         'FontName' => $fontName,
         'FullName' => $fontFullName,
-        'FamilyName' => $font->getFontFamily(),
-        'Weight' => $font->getFontWeight(),
+        'FamilyName' => $fontName,
+        'Weight' => 'Normal',
         'ItalicAngle' => 0,
         'IsFixedPitch' => false,
         'CharacterSet' => 'Unicode',
-        'FontBBox' => $font->getData('head', 'xMin') . ' ' . $font->getData('head', 'yMin') . ' ' . $font->getData('head', 'xMax') . ' ' . $font->getData('head', 'yMax'),
+        'FontBBox' => [0, -200, 1000, 800],
         'UnderlinePosition' => -100,
         'UnderlineThickness' => 50,
         'Version' => '1.0',
@@ -58,6 +58,8 @@ try {
         'StdHW' => 50,
         'StdVW' => 50,
         'StartCharMetrics' => 0,
+        'C' => [], // Character metrics
+        'MissingWidth' => 500,
     ];
 
     // Write UFM file
