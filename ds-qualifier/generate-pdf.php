@@ -178,6 +178,8 @@ $html = '<!DOCTYPE html>
     <style>
         * {
             font-family: ' . $cssFontFamily . ';
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         body {
             font-family: ' . $cssFontFamily . ';
@@ -186,9 +188,17 @@ $html = '<!DOCTYPE html>
             margin: 0;
             padding: 20px;
             font-size: 11pt;
+            word-break: normal;
         }
         h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, strong, em {
             font-family: ' . $cssFontFamily . ';
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        p, li, td, th, div {
+            word-break: normal;
+            white-space: normal;
+            overflow-wrap: break-word;
         }
         .header {
             text-align: center;
@@ -252,21 +262,26 @@ $html = '<!DOCTYPE html>
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
+            table-layout: auto;
         }
         table th {
             font-family: ' . $cssFontFamily . ';
             background: #f5f5f5;
-            padding: 8px;
+            padding: 10px 8px;
             text-align: left;
             border: 1px solid #ddd;
             font-weight: bold;
             font-size: 10pt;
+            vertical-align: top;
+            line-height: 1.4;
         }
         table td {
             font-family: ' . $cssFontFamily . ';
-            padding: 8px;
+            padding: 10px 8px;
             border: 1px solid #ddd;
             font-size: 10pt;
+            vertical-align: top;
+            line-height: 1.4;
         }
         .badge {
             font-family: ' . $cssFontFamily . ';
@@ -317,11 +332,20 @@ $html = '<!DOCTYPE html>
             font-family: ' . $cssFontFamily . ';
             margin: 10px 0;
             padding-left: 20px;
+            line-height: 1.6;
         }
         .improvement-section li {
             font-family: ' . $cssFontFamily . ';
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 10pt;
+            line-height: 1.6;
+        }
+        ul, ol {
+            line-height: 1.6;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
         }
         .footer {
             text-align: center;
