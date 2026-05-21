@@ -36,6 +36,23 @@ try {
     // Generate UFM file in AFM format
     $ufmFile = $fontDir . 'ipaexg.ufm';
 
+    // Get character widths from font
+    $glyphWidths = [];
+    $unitsPerEm = $font->getData('head', 'unitsPerEm') ?: 1000;
+
+    // Get horizontal metrics table
+    $hmtx = $font->getData('hmtx');
+
+    if ($hmtx && is_array($hmtx)) {
+        foreach ($hmtx as $gid => $width) {
+            if (is_numeric($width)) {
+                // Convert to 1000 unit scale
+                $scaledWidth = round(($width / $unitsPerEm) * 1000);
+                $glyphWidths[$gid] = $scaledWidth;
+            }
+        }
+    }
+
     // Create AFM format content
     $afm = "StartFontMetrics 4.1\n";
     $afm .= "Notice Converted by PHP-font-lib\n";
@@ -55,9 +72,22 @@ try {
     $afm .= "Ascender 1000\n";
     $afm .= "Descender -200\n";
     $afm .= "FontBBox 0 -200 1000 800\n";
-    $afm .= "StartCharMetrics 1\n";
-    $afm .= "C 32 ; WX 500 ; N space ; B 0 0 0 0 ;\n";
-    $afm .= "EndCharMetrics\n";
+
+    // Write character metrics
+    $charCount = count($glyphWidths);
+    if ($charCount > 0) {
+        $afm .= "StartCharMetrics {$charCount}\n";
+        foreach ($glyphWidths as $gid => $width) {
+            $afm .= "C {$gid} ; WX {$width} ; N g{$gid} ; B 0 0 {$width} 800 ;\n";
+        }
+        $afm .= "EndCharMetrics\n";
+    } else {
+        // Fallback to basic metrics
+        $afm .= "StartCharMetrics 1\n";
+        $afm .= "C 32 ; WX 500 ; N space ; B 0 0 0 0 ;\n";
+        $afm .= "EndCharMetrics\n";
+    }
+
     $afm .= "EndFontMetrics\n";
 
     // Write UFM file
