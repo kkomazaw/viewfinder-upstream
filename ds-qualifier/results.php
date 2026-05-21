@@ -419,114 +419,114 @@ if (isset($_GET['locale'])) {
 
       <?php if ($maturityLevel === 'maturity.initial'): ?>
         <div class="action-priority maturity-initial">
-          <h3><i class="fa-solid fa-circle-exclamation"></i> Critical Actions for Initial Level</h3>
-          <p>Processes are unpredictable and reactive. Establish basic digital sovereignty awareness and controls:</p>
+          <h3><i class="fa-solid fa-circle-exclamation"></i> <?php echo __('improvement.initial.title'); ?></h3>
+          <p><?php echo __('improvement.initial.intro'); ?></p>
           <ul>
-            <li><strong>Gain Executive Awareness:</strong> Educate leadership on digital sovereignty risks and regulatory requirements</li>
-            <li><strong>Assess Current State:</strong> Conduct inventory of data locations, vendor dependencies, and compliance gaps</li>
-            <li><strong>Identify Quick Wins:</strong> Address immediate sovereignty risks (e.g., data residency violations, unencrypted data)</li>
-            <li><strong>Secure Resources:</strong> Obtain initial budget and staffing for sovereignty initiatives</li>
-            <li><strong>Define Initial Policies:</strong> Create basic policies for data handling and vendor selection</li>
-            <li><strong>Build Awareness:</strong> Launch awareness campaigns to educate staff about digital sovereignty</li>
+            <li><?php echo __('improvement.initial.action1'); ?></li>
+            <li><?php echo __('improvement.initial.action2'); ?></li>
+            <li><?php echo __('improvement.initial.action3'); ?></li>
+            <li><?php echo __('improvement.initial.action4'); ?></li>
+            <li><?php echo __('improvement.initial.action5'); ?></li>
+            <li><?php echo __('improvement.initial.action6'); ?></li>
           </ul>
 
           <div class="recommended-products">
-            <h4>Immediate Priorities:</h4>
+            <h4><?php echo __('improvement.initial.priorities'); ?></h4>
             <ul>
-              <li>Executive sponsorship and steering committee formation</li>
-              <li>Critical data classification and residency mapping</li>
-              <li>Vendor dependency assessment</li>
-              <li>Compliance requirement documentation (GDPR, NIS2, etc.)</li>
+              <li><?php echo __('improvement.initial.priority1'); ?></li>
+              <li><?php echo __('improvement.initial.priority2'); ?></li>
+              <li><?php echo __('improvement.initial.priority3'); ?></li>
+              <li><?php echo __('improvement.initial.priority4'); ?></li>
             </ul>
           </div>
         </div>
 
       <?php elseif ($maturityLevel === 'maturity.managed'): ?>
         <div class="action-priority maturity-managed">
-          <h3><i class="fa-solid fa-clipboard-list"></i> Foundation Actions for Managed Level</h3>
-          <p>Projects are managed but processes are not yet standardized. Build repeatable practices:</p>
+          <h3><i class="fa-solid fa-clipboard-list"></i> <?php echo __('improvement.managed.title'); ?></h3>
+          <p><?php echo __('improvement.managed.intro'); ?></p>
           <ul>
-            <li><strong>Develop Strategy:</strong> Create a digital sovereignty roadmap aligned with business objectives</li>
-            <li><strong>Implement Controls:</strong> Deploy encryption key management (BYOK/HYOK) and data residency controls</li>
-            <li><strong>Establish Governance:</strong> Form sovereignty governance committee with clear responsibilities</li>
-            <li><strong>Document Procedures:</strong> Create standard operating procedures for sovereignty-critical activities</li>
-            <li><strong>Build Capabilities:</strong> Train technical teams on sovereign technologies and frameworks</li>
-            <li><strong>Evaluate Solutions:</strong> Research open-source and sovereign-ready platforms</li>
+            <li><?php echo __('improvement.managed.action1'); ?></li>
+            <li><?php echo __('improvement.managed.action2'); ?></li>
+            <li><?php echo __('improvement.managed.action3'); ?></li>
+            <li><?php echo __('improvement.managed.action4'); ?></li>
+            <li><?php echo __('improvement.managed.action5'); ?></li>
+            <li><?php echo __('improvement.managed.action6'); ?></li>
           </ul>
 
           <div class="recommended-products">
-            <h4>Key Focus Areas:</h4>
+            <h4><?php echo __('improvement.managed.focus'); ?></h4>
             <ul>
-              <li>Data sovereignty and encryption controls</li>
-              <li>Repeatable assessment processes</li>
-              <li>Vendor risk management framework</li>
-              <li>Compliance tracking and reporting</li>
+              <li><?php echo __('improvement.managed.focus1'); ?></li>
+              <li><?php echo __('improvement.managed.focus2'); ?></li>
+              <li><?php echo __('improvement.managed.focus3'); ?></li>
+              <li><?php echo __('improvement.managed.focus4'); ?></li>
             </ul>
           </div>
         </div>
 
       <?php elseif ($maturityLevel === 'maturity.defined'): ?>
         <div class="action-priority maturity-defined">
-          <h3><i class="fa-solid fa-sitemap"></i> Standardization Actions for Defined Level</h3>
-          <p>Processes are documented and standardized. Focus on organization-wide consistency and optimization:</p>
+          <h3><i class="fa-solid fa-sitemap"></i> <?php echo __('improvement.defined.title'); ?></h3>
+          <p><?php echo __('improvement.defined.intro'); ?></p>
           <ul>
-            <li><strong>Standardize Processes:</strong> Ensure sovereignty practices are consistent across all business units</li>
-            <li><strong>Implement Standards:</strong> Adopt open standards and containerization for portability</li>
-            <li><strong>Enhance Controls:</strong> Implement advanced monitoring, audit rights, and security log sovereignty</li>
-            <li><strong>Build Resilience:</strong> Develop and test disaster recovery plans for geopolitical scenarios</li>
-            <li><strong>Expand Open Source:</strong> Increase use of open-source software and contribute to strategic projects</li>
-            <li><strong>Pursue Certifications:</strong> Obtain relevant certifications (NIS2, SecNumCloud, FedRAMP, etc.)</li>
+            <li><?php echo __('improvement.defined.action1'); ?></li>
+            <li><?php echo __('improvement.defined.action2'); ?></li>
+            <li><?php echo __('improvement.defined.action3'); ?></li>
+            <li><?php echo __('improvement.defined.action4'); ?></li>
+            <li><?php echo __('improvement.defined.action5'); ?></li>
+            <li><?php echo __('improvement.defined.action6'); ?></li>
           </ul>
 
           <div class="recommended-resources">
-            <h4>Advancement Priorities:</h4>
+            <h4><?php echo __('improvement.defined.priorities'); ?></h4>
             <ul>
-              <li>Process standardization and documentation</li>
-              <li>Cloud platform portability testing</li>
-              <li>Organization-wide training programs</li>
-              <li>Sovereignty metrics and KPIs definition</li>
+              <li><?php echo __('improvement.defined.priority1'); ?></li>
+              <li><?php echo __('improvement.defined.priority2'); ?></li>
+              <li><?php echo __('improvement.defined.priority3'); ?></li>
+              <li><?php echo __('improvement.defined.priority4'); ?></li>
             </ul>
           </div>
         </div>
 
       <?php elseif ($maturityLevel === 'maturity.quantitative'): ?>
         <div class="action-priority maturity-quantitative">
-          <h3><i class="fa-solid fa-chart-line"></i> Measurement Actions for Quantitatively Managed Level</h3>
-          <p>Processes are measured and statistically controlled. Optimize through data-driven decisions:</p>
+          <h3><i class="fa-solid fa-chart-line"></i> <?php echo __('improvement.quantitative.title'); ?></h3>
+          <p><?php echo __('improvement.quantitative.intro'); ?></p>
           <ul>
-            <li><strong>Establish Metrics:</strong> Define and track quantitative sovereignty performance indicators</li>
-            <li><strong>Analyze Performance:</strong> Use statistical techniques to understand process variations</li>
-            <li><strong>Set Objectives:</strong> Establish quantitative quality and performance targets for sovereignty</li>
-            <li><strong>Validate Controls:</strong> Regularly test and measure effectiveness of sovereignty controls</li>
-            <li><strong>Benchmark Performance:</strong> Compare your metrics against industry standards and peers</li>
-            <li><strong>Optimize Resources:</strong> Use data to identify and eliminate inefficiencies</li>
+            <li><?php echo __('improvement.quantitative.action1'); ?></li>
+            <li><?php echo __('improvement.quantitative.action2'); ?></li>
+            <li><?php echo __('improvement.quantitative.action3'); ?></li>
+            <li><?php echo __('improvement.quantitative.action4'); ?></li>
+            <li><?php echo __('improvement.quantitative.action5'); ?></li>
+            <li><?php echo __('improvement.quantitative.action6'); ?></li>
           </ul>
 
           <div class="recommended-resources">
-            <h4>Excellence Focus:</h4>
+            <h4><?php echo __('improvement.quantitative.focus'); ?></h4>
             <ul>
-              <li>Advanced analytics and metrics dashboards</li>
-              <li>Statistical process control techniques</li>
-              <li>Continuous monitoring and alerting</li>
-              <li>Performance baselines and targets</li>
+              <li><?php echo __('improvement.quantitative.focus1'); ?></li>
+              <li><?php echo __('improvement.quantitative.focus2'); ?></li>
+              <li><?php echo __('improvement.quantitative.focus3'); ?></li>
+              <li><?php echo __('improvement.quantitative.focus4'); ?></li>
             </ul>
           </div>
         </div>
 
       <?php else: ?>
         <div class="action-priority maturity-optimizing">
-          <h3><i class="fa-solid fa-rocket"></i> Innovation Actions for Optimizing Level</h3>
-          <p>Focus on continuous improvement and innovation. Lead industry best practices:</p>
+          <h3><i class="fa-solid fa-rocket"></i> <?php echo __('improvement.optimizing.title'); ?></h3>
+          <p><?php echo __('improvement.optimizing.intro'); ?></p>
           <ul>
-            <li><strong>Drive Innovation:</strong> Pilot and deploy innovative sovereignty technologies and practices</li>
-            <li><strong>Continuous Improvement:</strong> Use quantitative feedback to continuously optimize processes</li>
-            <li><strong>Share Knowledge:</strong> Document and share best practices with industry and open-source communities</li>
-            <li><strong>Lead Standards:</strong> Contribute to and influence digital sovereignty standards and frameworks</li>
-            <li><strong>Expand Scope:</strong> Apply sovereignty principles to emerging technologies (AI, edge, quantum)</li>
-            <li><strong>Stay Ahead:</strong> Proactively monitor and adapt to evolving regulations and geopolitical changes</li>
+            <li><?php echo __('improvement.optimizing.action1'); ?></li>
+            <li><?php echo __('improvement.optimizing.action2'); ?></li>
+            <li><?php echo __('improvement.optimizing.action3'); ?></li>
+            <li><?php echo __('improvement.optimizing.action4'); ?></li>
+            <li><?php echo __('improvement.optimizing.action5'); ?></li>
+            <li><?php echo __('improvement.optimizing.action6'); ?></li>
           </ul>
 
-          <p class="note"><strong>Note:</strong> At the Optimizing level, your focus shifts from implementing controls to driving innovation and thought leadership in digital sovereignty. Continue to measure, refine, and lead industry practices.</p>
+          <p class="note"><?php echo __('improvement.optimizing.note'); ?></p>
         </div>
       <?php endif; ?>
     </div>
@@ -534,7 +534,7 @@ if (isset($_GET['locale'])) {
     <!-- Detailed Domain Insights -->
     <div class="domain-insights">
       <h2><i class="fa-solid fa-list-check"></i> <?php echo __e('results.domain_insights'); ?></h2>
-      <p class="section-intro">Review your specific responses across all domains:</p>
+      <p class="section-intro"><?php echo __e('results.domain_insights.intro'); ?></p>
 
       <?php foreach ($questions as $domainName => $domainData):
           $score = $domainScores[$domainName] ?? 0;
@@ -550,7 +550,7 @@ if (isset($_GET['locale'])) {
           <p class="domain-insight-description"><?php echo __e($domainData['description_key']); ?></p>
 
           <div class="requirements-found">
-            <h4>Requirements Identified:</h4>
+            <h4><?php echo __e('results.domain_insights.requirements_identified'); ?></h4>
             <ul>
               <?php foreach ($responses as $response_key): ?>
                 <li><i class="fa-solid fa-check"></i> <?php echo __e($response_key); ?></li>
@@ -565,7 +565,7 @@ if (isset($_GET['locale'])) {
 
       <?php if ($totalScore === 0): ?>
         <div class="no-requirements">
-          <p><i class="fa-solid fa-info-circle"></i> No Digital Sovereignty requirements were identified in this assessment. Consider focusing on other Red Hat value propositions.</p>
+          <p><i class="fa-solid fa-info-circle"></i> <?php echo __e('results.domain_insights.no_requirements'); ?></p>
         </div>
       <?php endif; ?>
     </div>

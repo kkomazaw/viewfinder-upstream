@@ -161,12 +161,17 @@ $assessmentDate = date('F j, Y \a\t g:i A');
 $locale = getLocale();
 $fontFamily = 'Arial'; // Default for English
 $cssFontFamily = 'Arial, sans-serif';
+$wordBreakStyle = 'normal';
+$lineBreakStyle = 'auto';
 
 if ($locale === 'ja') {
     // Use IPA Ex Gothic for Japanese (better Dompdf compatibility)
     // Use only ipaexg without fallback to ensure all text uses Japanese font
     $fontFamily = 'ipaexg';
     $cssFontFamily = 'ipaexg';
+    // For Japanese: allow breaking anywhere to prevent overflow
+    $wordBreakStyle = 'break-all';
+    $lineBreakStyle = 'anywhere';
 }
 
 // Build HTML for PDF
@@ -179,36 +184,35 @@ $html = '<!DOCTYPE html>
         * {
             font-family: ' . $cssFontFamily . ';
             word-wrap: break-word;
-            overflow-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
         }
         body {
             font-family: ' . $cssFontFamily . ';
             color: #333;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             font-size: 11pt;
-            word-break: normal;
+            word-break: ' . $wordBreakStyle . ';
+            max-width: 100%;
+            box-sizing: border-box;
         }
         h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, strong, em {
             font-family: ' . $cssFontFamily . ';
             word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
+            overflow-wrap: ' . $lineBreakStyle . ';
         }
         p {
             margin: 8px 0;
             line-height: 1.6;
-            word-break: normal;
+            word-break: ' . $wordBreakStyle . ';
             white-space: normal;
-            overflow-wrap: break-word;
-            max-width: 100%;
+            overflow-wrap: ' . $lineBreakStyle . ';
         }
         li, td, th, div {
-            word-break: normal;
+            word-break: ' . $wordBreakStyle . ';
             white-space: normal;
-            overflow-wrap: break-word;
-            max-width: 100%;
+            overflow-wrap: ' . $lineBreakStyle . ';
         }
         strong {
             font-weight: bold;
@@ -243,31 +247,40 @@ $html = '<!DOCTYPE html>
             text-align: center;
             margin-bottom: 30px;
             overflow: hidden;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         .score-card h2 {
             font-family: ' . $cssFontFamily . ';
-            margin: 0 0 15px 0;
-            font-size: 24px;
+            margin: 0 0 12px 0;
+            font-size: 20px;
             line-height: 1.3;
             word-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
         }
         .score-circle {
-            font-size: 42px;
+            font-size: 38px;
             font-weight: bold;
-            margin: 15px 0;
+            margin: 12px 0;
         }
         .score-detail {
-            font-size: 13px;
+            font-size: 11px;
             opacity: 0.9;
+            word-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
+            margin: 4px 0;
         }
         .recommendation {
-            margin: 15px 0;
-            font-size: 11px;
-            line-height: 1.6;
+            margin: 12px 10px 8px 10px;
+            font-size: 10px;
+            line-height: 1.5;
             word-wrap: break-word;
-            overflow-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
             max-width: 100%;
-            padding: 0 5px;
+            box-sizing: border-box;
         }
         .section {
             margin-bottom: 25px;
@@ -289,7 +302,7 @@ $html = '<!DOCTYPE html>
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
-            table-layout: fixed;
+            table-layout: auto;
         }
         table th {
             font-family: ' . $cssFontFamily . ';
@@ -356,6 +369,7 @@ $html = '<!DOCTYPE html>
             page-break-inside: avoid;
             overflow: hidden;
             max-width: 100%;
+            box-sizing: border-box;
         }
         .improvement-section h4 {
             font-family: ' . $cssFontFamily . ';
@@ -364,19 +378,26 @@ $html = '<!DOCTYPE html>
             color: ' . $maturityColor . ';
             font-size: 13px;
             line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
         }
         .improvement-section p {
             margin: 8px 0;
             font-size: 10pt;
             line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
         }
         .improvement-section ul {
             font-family: ' . $cssFontFamily . ';
             margin: 10px 0;
             padding-left: 18px;
-            padding-right: 5px;
+            padding-right: 8px;
             line-height: 1.6;
             max-width: 100%;
+            box-sizing: border-box;
         }
         .improvement-section li {
             font-family: ' . $cssFontFamily . ';
@@ -384,6 +405,8 @@ $html = '<!DOCTYPE html>
             font-size: 9pt;
             line-height: 1.5;
             word-wrap: break-word;
+            overflow-wrap: ' . $lineBreakStyle . ';
+            word-break: ' . $wordBreakStyle . ';
         }
         ul, ol {
             line-height: 1.5;
@@ -475,7 +498,7 @@ foreach ($questions as $domainName => $domainData) {
     $html .= '<tr>
                 <td><strong>' . htmlspecialchars(__($domainData['name_key'])) . '</strong></td>
                 <td style="text-align: center;">' . $score . '/' . $maxDomainScore . '</td>
-                <td style="text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 3px; ' . $weightStyle . '">' . number_format($weight, 1) . '\u00d7</span></td>
+                <td style="text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 3px; ' . $weightStyle . '">' . number_format($weight, 1) . '&times;</span></td>
                 <td style="text-align: center;">' . $percentage . '%</td>
                 <td><span class="badge badge-' . $badge . '">' . htmlspecialchars(__($levelTextKey)) . '</span></td>
               </tr>';
@@ -491,97 +514,97 @@ $html .= '<div class="section">
 
 if ($maturityLevelKey === 'maturity.initial') {
     $html .= '<div class="improvement-section">
-        <h4>Critical Actions for Initial Level</h4>
-        <p>Processes are unpredictable and reactive. Establish basic digital sovereignty awareness and controls:</p>
+        <h4>' . __('improvement.initial.title') . '</h4>
+        <p>' . __('improvement.initial.intro') . '</p>
         <ul>
-            <li><strong>Gain Executive Awareness:</strong> Educate leadership on digital sovereignty risks and regulatory requirements</li>
-            <li><strong>Assess Current State:</strong> Conduct inventory of data locations, vendor dependencies, and compliance gaps</li>
-            <li><strong>Identify Quick Wins:</strong> Address immediate sovereignty risks (e.g., data residency violations, unencrypted data)</li>
-            <li><strong>Secure Resources:</strong> Obtain initial budget and staffing for sovereignty initiatives</li>
-            <li><strong>Define Initial Policies:</strong> Create basic policies for data handling and vendor selection</li>
-            <li><strong>Build Awareness:</strong> Launch awareness campaigns to educate staff about digital sovereignty</li>
+            <li>' . __('improvement.initial.action1') . '</li>
+            <li>' . __('improvement.initial.action2') . '</li>
+            <li>' . __('improvement.initial.action3') . '</li>
+            <li>' . __('improvement.initial.action4') . '</li>
+            <li>' . __('improvement.initial.action5') . '</li>
+            <li>' . __('improvement.initial.action6') . '</li>
         </ul>
-        <h4>Immediate Priorities:</h4>
+        <h4>' . __('improvement.initial.priorities') . '</h4>
         <ul>
-            <li>Executive sponsorship and steering committee formation</li>
-            <li>Critical data classification and residency mapping</li>
-            <li>Vendor dependency assessment</li>
-            <li>Compliance requirement documentation (GDPR, NIS2, etc.)</li>
+            <li>' . __('improvement.initial.priority1') . '</li>
+            <li>' . __('improvement.initial.priority2') . '</li>
+            <li>' . __('improvement.initial.priority3') . '</li>
+            <li>' . __('improvement.initial.priority4') . '</li>
         </ul>
     </div>';
 } elseif ($maturityLevelKey === 'maturity.managed') {
     $html .= '<div class="improvement-section">
-        <h4>Foundation Actions for Managed Level</h4>
-        <p>Projects are managed but processes are not yet standardized. Build repeatable practices:</p>
+        <h4>' . __('improvement.managed.title') . '</h4>
+        <p>' . __('improvement.managed.intro') . '</p>
         <ul>
-            <li><strong>Develop Strategy:</strong> Create a digital sovereignty roadmap aligned with business objectives</li>
-            <li><strong>Implement Controls:</strong> Deploy encryption key management (BYOK/HYOK) and data residency controls</li>
-            <li><strong>Establish Governance:</strong> Form sovereignty governance committee with clear responsibilities</li>
-            <li><strong>Document Procedures:</strong> Create standard operating procedures for sovereignty-critical activities</li>
-            <li><strong>Build Capabilities:</strong> Train technical teams on sovereign technologies and frameworks</li>
-            <li><strong>Evaluate Solutions:</strong> Research open-source and sovereign-ready platforms</li>
+            <li>' . __('improvement.managed.action1') . '</li>
+            <li>' . __('improvement.managed.action2') . '</li>
+            <li>' . __('improvement.managed.action3') . '</li>
+            <li>' . __('improvement.managed.action4') . '</li>
+            <li>' . __('improvement.managed.action5') . '</li>
+            <li>' . __('improvement.managed.action6') . '</li>
         </ul>
-        <h4>Key Focus Areas:</h4>
+        <h4>' . __('improvement.managed.focus') . '</h4>
         <ul>
-            <li>Data sovereignty and encryption controls</li>
-            <li>Repeatable assessment processes</li>
-            <li>Vendor risk management framework</li>
-            <li>Compliance tracking and reporting</li>
+            <li>' . __('improvement.managed.focus1') . '</li>
+            <li>' . __('improvement.managed.focus2') . '</li>
+            <li>' . __('improvement.managed.focus3') . '</li>
+            <li>' . __('improvement.managed.focus4') . '</li>
         </ul>
     </div>';
 } elseif ($maturityLevelKey === 'maturity.defined') {
     $html .= '<div class="improvement-section">
-        <h4>Standardization Actions for Defined Level</h4>
-        <p>Processes are documented and standardized. Focus on organization-wide consistency and optimization:</p>
+        <h4>' . __('improvement.defined.title') . '</h4>
+        <p>' . __('improvement.defined.intro') . '</p>
         <ul>
-            <li><strong>Standardize Processes:</strong> Ensure sovereignty practices are consistent across all business units</li>
-            <li><strong>Implement Standards:</strong> Adopt open standards and containerization for portability</li>
-            <li><strong>Enhance Controls:</strong> Implement advanced monitoring, audit rights, and security log sovereignty</li>
-            <li><strong>Build Resilience:</strong> Develop and test disaster recovery plans for geopolitical scenarios</li>
-            <li><strong>Expand Open Source:</strong> Increase use of open-source software and contribute to strategic projects</li>
-            <li><strong>Pursue Certifications:</strong> Obtain relevant certifications (NIS2, SecNumCloud, FedRAMP, etc.)</li>
+            <li>' . __('improvement.defined.action1') . '</li>
+            <li>' . __('improvement.defined.action2') . '</li>
+            <li>' . __('improvement.defined.action3') . '</li>
+            <li>' . __('improvement.defined.action4') . '</li>
+            <li>' . __('improvement.defined.action5') . '</li>
+            <li>' . __('improvement.defined.action6') . '</li>
         </ul>
-        <h4>Advancement Priorities:</h4>
+        <h4>' . __('improvement.defined.priorities') . '</h4>
         <ul>
-            <li>Process standardization and documentation</li>
-            <li>Cloud platform portability testing</li>
-            <li>Organization-wide training programs</li>
-            <li>Sovereignty metrics and KPIs definition</li>
+            <li>' . __('improvement.defined.priority1') . '</li>
+            <li>' . __('improvement.defined.priority2') . '</li>
+            <li>' . __('improvement.defined.priority3') . '</li>
+            <li>' . __('improvement.defined.priority4') . '</li>
         </ul>
     </div>';
 } elseif ($maturityLevelKey === 'maturity.quantitative') {
     $html .= '<div class="improvement-section">
-        <h4>Measurement Actions for Quantitatively Managed Level</h4>
-        <p>Processes are measured and statistically controlled. Optimize through data-driven decisions:</p>
+        <h4>' . __('improvement.quantitative.title') . '</h4>
+        <p>' . __('improvement.quantitative.intro') . '</p>
         <ul>
-            <li><strong>Establish Metrics:</strong> Define and track quantitative sovereignty performance indicators</li>
-            <li><strong>Analyze Performance:</strong> Use statistical techniques to understand process variations</li>
-            <li><strong>Set Objectives:</strong> Establish quantitative quality and performance targets for sovereignty</li>
-            <li><strong>Validate Controls:</strong> Regularly test and measure effectiveness of sovereignty controls</li>
-            <li><strong>Benchmark Performance:</strong> Compare your metrics against industry standards and peers</li>
-            <li><strong>Optimize Resources:</strong> Use data to identify and eliminate inefficiencies</li>
+            <li>' . __('improvement.quantitative.action1') . '</li>
+            <li>' . __('improvement.quantitative.action2') . '</li>
+            <li>' . __('improvement.quantitative.action3') . '</li>
+            <li>' . __('improvement.quantitative.action4') . '</li>
+            <li>' . __('improvement.quantitative.action5') . '</li>
+            <li>' . __('improvement.quantitative.action6') . '</li>
         </ul>
-        <h4>Excellence Focus:</h4>
+        <h4>' . __('improvement.quantitative.focus') . '</h4>
         <ul>
-            <li>Advanced analytics and metrics dashboards</li>
-            <li>Statistical process control techniques</li>
-            <li>Continuous monitoring and alerting</li>
-            <li>Performance baselines and targets</li>
+            <li>' . __('improvement.quantitative.focus1') . '</li>
+            <li>' . __('improvement.quantitative.focus2') . '</li>
+            <li>' . __('improvement.quantitative.focus3') . '</li>
+            <li>' . __('improvement.quantitative.focus4') . '</li>
         </ul>
     </div>';
 } else {
     $html .= '<div class="improvement-section">
-        <h4>Innovation Actions for Optimizing Level</h4>
-        <p>Focus on continuous improvement and innovation. Lead industry best practices:</p>
+        <h4>' . __('improvement.optimizing.title') . '</h4>
+        <p>' . __('improvement.optimizing.intro') . '</p>
         <ul>
-            <li><strong>Drive Innovation:</strong> Pilot and deploy innovative sovereignty technologies and practices</li>
-            <li><strong>Continuous Improvement:</strong> Use quantitative feedback to continuously optimize processes</li>
-            <li><strong>Share Knowledge:</strong> Document and share best practices with industry and open-source communities</li>
-            <li><strong>Lead Standards:</strong> Contribute to and influence digital sovereignty standards and frameworks</li>
-            <li><strong>Expand Scope:</strong> Apply sovereignty principles to emerging technologies (AI, edge, quantum)</li>
-            <li><strong>Stay Ahead:</strong> Proactively monitor and adapt to evolving regulations and geopolitical changes</li>
+            <li>' . __('improvement.optimizing.action1') . '</li>
+            <li>' . __('improvement.optimizing.action2') . '</li>
+            <li>' . __('improvement.optimizing.action3') . '</li>
+            <li>' . __('improvement.optimizing.action4') . '</li>
+            <li>' . __('improvement.optimizing.action5') . '</li>
+            <li>' . __('improvement.optimizing.action6') . '</li>
         </ul>
-        <p><strong>Note:</strong> At the Optimizing level, your focus shifts from implementing controls to driving innovation and thought leadership in digital sovereignty.</p>
+        <p>' . __('improvement.optimizing.note') . '</p>
     </div>';
 }
 
@@ -590,7 +613,7 @@ $html .= '</div>';
 // Detailed Domain Insights section
 $html .= '<div class="section">
     <h3>' . htmlspecialchars(__('results.domain_insights')) . '</h3>
-    <p style="font-size: 10pt; margin-bottom: 15px;">Review your specific responses across all domains:</p>';
+    <p style="font-size: 10pt; margin-bottom: 15px;">' . htmlspecialchars(__('results.domain_insights.intro')) . '</p>';
 
 $hasAnyRequirements = false;
 foreach ($questions as $domainName => $domainData) {
@@ -606,7 +629,7 @@ foreach ($questions as $domainName => $domainData) {
             </div>
             <p style="margin: 8px 0; color: #666; font-size: 10pt;">' . htmlspecialchars(__($domainData['description_key'])) . '</p>
             <div style="margin-top: 10px;">
-                <strong style="font-size: 10pt; color: #333;">Requirements Identified:</strong>
+                <strong style="font-size: 10pt; color: #333;">' . htmlspecialchars(__('results.domain_insights.requirements_identified')) . '</strong>
                 <ul style="margin: 5px 0; padding-left: 20px;">';
 
         foreach ($responses as $response_key) {
@@ -620,9 +643,7 @@ foreach ($questions as $domainName => $domainData) {
 }
 
 if (!$hasAnyRequirements) {
-    $html .= '<p style="padding: 15px; background: #f9f9f9; border-left: 4px solid #0066cc; margin: 10px 0; font-size: 10pt;">
-                <strong>No Digital Sovereignty requirements were identified in this assessment.</strong> Consider focusing on other value propositions.
-              </p>';
+    $html .= '<p style="padding: 15px; background: #f9f9f9; border-left: 4px solid #0066cc; margin: 10px 0; font-size: 10pt;">' . htmlspecialchars(__('results.domain_insights.no_requirements')) . '</p>';
 }
 
 $html .= '</div>';
